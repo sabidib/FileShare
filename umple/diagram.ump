@@ -1,0 +1,87 @@
+
+
+class Client {
+	isA NetworkNode;
+	* -- 1 Server;
+	1 -> 1 Session;	
+	1 -- 1 ServerSideClientInformation;
+	ServerSideClientInformation
+	string username;
+	data loginTime;
+	int filesStreamed;
+	int filesStreaming;
+	string profileImage;
+}
+
+class NetworkNode{
+	abstract;
+	int ipAddress;
+}
+
+class File {
+	location;
+	* -> 1 Client;
+}
+
+class StreamableFile {
+	isA File;
+}
+
+class AudioFile {
+	isA StreamableFile;
+}
+
+class VideoFile {
+	isA StreamableFile;
+}
+
+class DataFile {
+	isA StreamableFile;	
+}
+
+class Server{
+	isA NetworkNode;
+}
+
+class DatabaseConnection {
+	1 <- * Server;
+}
+
+class Session {
+	folderStored;
+}
+
+class StreamRequest {
+	* -> 1 NetworkFileSystemNode fileRequest;
+}
+
+class ServerSideClientInformation {
+	int ipAddress;
+	* -> * NetworkFileSystemNode;
+}
+
+class Directory {
+	isA NetworkFileSystemNode;
+	string name;
+}
+
+class File {
+	isA NetworkFileSystemNode;
+	string fileType;
+}
+
+class NetworkFileSystemNode {
+	abstract;
+	string name;
+	string path;
+	* -> 1  NetworkNode location;
+	0..* children -- 0..* NetworkFileSystemNode parents;
+}
+
+class Stream{
+	1 -> 1 NetworkNode src;
+	1 -> 1 NetworkNode dest;
+}
+
+
+
