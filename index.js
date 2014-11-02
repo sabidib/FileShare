@@ -6,6 +6,8 @@ var io = require('socket.io')(http);
 var BinaryServer = require('binaryjs').BinaryServer;
 var fs = require('fs');
 
+var File = require('./includes/File.js'); // testing File class
+
 app.use(express.static(__dirname + '/public'));
 
 app.get('/', function(req, res){
@@ -28,7 +30,7 @@ io.on('connection', function(socket){
 
 
     socket.on('user connected',function(msg){
-      console.log("someone connected!");
+      console.log("someone connected!");      
     })
 
 
@@ -45,8 +47,9 @@ var server = BinaryServer({port: 9000});
 server.on('connection', function(client){
   	  // Incoming stream from browsers
   client.on('stream', function(stream, meta){
-    client.send(stream);
-
+    var file = new File(meta.name, meta.path, meta.path, meta.type, client); // testing File class
+    file.addToShareGroup(client); // testing public method
+        
     stream.on('data', function(data){
       stream.write({rx: data.length / meta.size});
     });

@@ -50,15 +50,15 @@
                 box.on('dragover', doNothing);
                 box.text('Drag files here');
                 box.on('drop', function(e){
-                    e.originalEvent.preventDefault();
-                    var file = e.originalEvent.dataTransfer.files[0];
-                        
+                    e.originalEvent.preventDefault();                    
+                    var file = e.originalEvent.dataTransfer.files[0];                    
                     // Add to list of uploaded files
                     $('<div align="center"></div>').append($('<a></a>').text(file.name).prop('href', '/'+file.name)).appendTo('body');
                         
                         // `client.send` is a helper function that creates a stream with the 
                         // given metadata, and then chunks up and streams the data.
-                        var stream = client.send(file, {name: file.name, size: file.size});
+                        var filePath = "/"; // need to somehow get file path
+                        var stream = client.send(file, {name: file.name, size: file.size, type:file.type, path:filePath});
                         
                         // Print progress
                         var tx = 0;
@@ -73,8 +73,7 @@
           // Buffer for parts
           var parts = [];
           // Got new data
-          stream.on('data', function(data){
-            console.log(data);
+          stream.on('data', function(data){            
             parts.push(data);
           });
           stream.on('end', function(){
