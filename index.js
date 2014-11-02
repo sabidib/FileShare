@@ -7,6 +7,7 @@ var BinaryServer = require('binaryjs').BinaryServer;
 var fs = require('fs');
 
 var File = require('./includes/File.js'); // testing File class
+var ShareGroup = require('./includes/ShareGroup.js'); // testing ShareGroup class
 
 app.use(express.static(__dirname + '/public'));
 
@@ -47,9 +48,11 @@ var server = BinaryServer({port: 9000});
 server.on('connection', function(client){
   	  // Incoming stream from browsers
   client.on('stream', function(stream, meta){
+    var shareGroup = new ShareGroup();    // testing ShareGroup class
     var file = new File(meta.name, meta.path, meta.path, meta.type, client); // testing File class
-    file.addToShareGroup(client); // testing public method
-        
+    shareGroup.addFile(file);
+    shareGroup.addClient(client);
+    console.log(shareGroup)    ;
     stream.on('data', function(data){
       stream.write({rx: data.length / meta.size});
     });

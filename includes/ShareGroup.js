@@ -1,12 +1,12 @@
 /**
  * Creates a new ShareGroup.
  * @class
- * @param {File} file The file object that this ShareGroup is for. 
  */
-var ShareGroup = function ShareGroup(file) {
-	this.file = file;	
+var ShareGroup = function ShareGroup() {
+	this.files = [];
 	this.clients = [];
 	this.numberOfClients = 0;
+	this.numberOfFiles = 0;
 };
 
 
@@ -17,6 +17,15 @@ var ShareGroup = function ShareGroup(file) {
 ShareGroup.prototype.addClient = function (client) {
 	this.clients.push(client);
 	this.numberOfClients++;
+};
+
+/**
+* Add a file to be shared with all clients.
+* @param {File} client The file to be shared with all clients.
+*/
+ShareGroup.prototype.addFile = function (file) {
+	this.files.push(file);
+	this.numberOfFiles++;
 };
 
  module.exports = ShareGroup;				// this line is so that this class can be accessed by other files

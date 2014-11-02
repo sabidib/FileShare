@@ -9,22 +9,26 @@ var ShareGroup = require('./ShareGroup.js');
  * @param {string} fileType The file type of this file.
  * @param {Client} Client The client that has this file.
  */
-var File = function File(name, path, location, fileType, client) {
+var File = function File(name, path, location, fileType, client, shareGroup) {
 	NetworkFileSystemNode.call(this, name, path, location);	
 	this.fileType = fileType;
 	this.client = client;
-	this.shareGroup = new ShareGroup(this);	
+	if (shareGroup) {
+		shareGroup.addFile(this);
+		this.shareGroup = shareGroup;	
+	}	
 }
 
 File.prototype = Object.create(NetworkFileSystemNode.prototype); 		// inherit from NetworkFileSystemNode
 File.prototype.constructor = File;					// change constructor from NetworkFileSystemNode's constructor to File's constructor
 
 /**
-* Add a client to the ShareGroup for this file.
-* @param {Client} client The client to add to the ShareGroup;
+* Set the shareGroup for this file and add it as a client.
+* @param {ShareGroup} shareGroup The group this file is to be shared with.
 */
-File.prototype.addToShareGroup = function(client) {
-	this.shareGroup.addClient(client);	
+File.prototype.setShareGroup = function(shareGroup) {
+	shareGroup.addFile(this);
+	this.shareGroup = shareGroup;
 }
 
 
