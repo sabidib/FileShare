@@ -4,7 +4,7 @@
 
 import java.util.*;
 
-// line 75 "diagram.ump"
+// line 74 "diagram.ump"
 public abstract class NetworkFileSystemNode
 {
 

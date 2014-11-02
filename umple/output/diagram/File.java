@@ -5,7 +5,7 @@
 import java.util.*;
 
 // line 22 "diagram.ump"
-// line 70 "diagram.ump"
+// line 69 "diagram.ump"
 public class File extends NetworkFileSystemNode
 {
 
@@ -18,20 +18,21 @@ public class File extends NetworkFileSystemNode
   private string fileType;
 
   //File Associations
-  private Client client;
+  private Client uploadedBy;
+  private ShareGroup shareGroup;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public File(string aName, string aPath, NetworkNode aLocation, String aLocation, string aFileType, Client aClient)
+  public File(string aName, string aPath, NetworkNode aLocation, String aLocation, string aFileType, Client aUploadedBy)
   {
     super(aName, aPath, aLocation);
     location = aLocation;
     fileType = aFileType;
-    if (!setClient(aClient))
+    if (!setUploadedBy(aUploadedBy))
     {
-      throw new RuntimeException("Unable to create File due to aClient");
+      throw new RuntimeException("Unable to create File due to aUploadedBy");
     }
   }
 
@@ -65,25 +66,59 @@ public class File extends NetworkFileSystemNode
     return fileType;
   }
 
-  public Client getClient()
+  public Client getUploadedBy()
   {
-    return client;
+    return uploadedBy;
   }
 
-  public boolean setClient(Client aNewClient)
+  public ShareGroup getShareGroup()
+  {
+    return shareGroup;
+  }
+
+  public boolean hasShareGroup()
+  {
+    boolean has = shareGroup != null;
+    return has;
+  }
+
+  public boolean setUploadedBy(Client aNewUploadedBy)
   {
     boolean wasSet = false;
-    if (aNewClient != null)
+    if (aNewUploadedBy != null)
     {
-      client = aNewClient;
+      uploadedBy = aNewUploadedBy;
       wasSet = true;
     }
     return wasSet;
   }
 
+  public boolean setShareGroup(ShareGroup aShareGroup)
+  {
+    boolean wasSet = false;
+    ShareGroup existingShareGroup = shareGroup;
+    shareGroup = aShareGroup;
+    if (existingShareGroup != null && !existingShareGroup.equals(aShareGroup))
+    {
+      existingShareGroup.removeFile(this);
+    }
+    if (aShareGroup != null)
+    {
+      aShareGroup.addFile(this);
+    }
+    wasSet = true;
+    return wasSet;
+  }
+
   public void delete()
   {
-    client = null;
+    uploadedBy = null;
+    if (shareGroup != null)
+    {
+      ShareGroup placeholderShareGroup = shareGroup;
+      this.shareGroup = null;
+      placeholderShareGroup.removeFile(this);
+    }
     super.delete();
   }
 
@@ -94,7 +129,8 @@ public class File extends NetworkFileSystemNode
     return super.toString() + "["+
             "location" + ":" + getLocation()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "fileType" + "=" + (getFileType() != null ? !getFileType().equals(this)  ? getFileType().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
-            "  " + "client = "+(getClient()!=null?Integer.toHexString(System.identityHashCode(getClient())):"null")
+            "  " + "uploadedBy = "+(getUploadedBy()!=null?Integer.toHexString(System.identityHashCode(getUploadedBy())):"null") + System.getProperties().getProperty("line.separator") +
+            "  " + "shareGroup = "+(getShareGroup()!=null?Integer.toHexString(System.identityHashCode(getShareGroup())):"null")
      + outputString;
   }
 }

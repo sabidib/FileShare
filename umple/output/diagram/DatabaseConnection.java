@@ -3,7 +3,7 @@
 
 
 
-// line 48 "diagram.ump"
+// line 47 "diagram.ump"
 public class DatabaseConnection
 {
 

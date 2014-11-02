@@ -16,9 +16,9 @@ public class VideoFile extends StreamableFile
   // CONSTRUCTOR
   //------------------------
 
-  public VideoFile(string aName, string aPath, NetworkNode aLocation, String aLocation, string aFileType, Client aClient)
+  public VideoFile(string aName, string aPath, NetworkNode aLocation, String aLocation, string aFileType, Client aUploadedBy)
   {
-    super(aName, aPath, aLocation, aLocation, aFileType, aClient);
+    super(aName, aPath, aLocation, aLocation, aFileType, aUploadedBy);
   }
 
   //------------------------

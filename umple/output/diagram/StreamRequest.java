@@ -3,7 +3,7 @@
 
 
 
-// line 56 "diagram.ump"
+// line 55 "diagram.ump"
 public class StreamRequest
 {
 

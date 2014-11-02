@@ -16,9 +16,9 @@ public class DataFile extends StreamableFile
   // CONSTRUCTOR
   //------------------------
 
-  public DataFile(string aName, string aPath, NetworkNode aLocation, String aLocation, string aFileType, Client aClient)
+  public DataFile(string aName, string aPath, NetworkNode aLocation, String aLocation, string aFileType, Client aUploadedBy)
   {
-    super(aName, aPath, aLocation, aLocation, aFileType, aClient);
+    super(aName, aPath, aLocation, aLocation, aFileType, aUploadedBy);
   }
 
   //------------------------

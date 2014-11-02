@@ -3,7 +3,7 @@
 
 
 
-// line 16 "diagram.ump"
+// line 17 "diagram.ump"
 public abstract class NetworkNode
 {
 

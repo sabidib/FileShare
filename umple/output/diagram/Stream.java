@@ -3,7 +3,7 @@
 
 
 
-// line 83 "diagram.ump"
+// line 82 "diagram.ump"
 public class Stream
 {
 

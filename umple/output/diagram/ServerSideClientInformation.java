@@ -4,7 +4,7 @@
 
 import java.util.*;
 
-// line 60 "diagram.ump"
+// line 59 "diagram.ump"
 public class ServerSideClientInformation
 {
 

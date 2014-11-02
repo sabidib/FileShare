@@ -3,7 +3,7 @@
 
 
 
-// line 52 "diagram.ump"
+// line 51 "diagram.ump"
 public class Session
 {
 
