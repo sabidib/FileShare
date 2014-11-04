@@ -48,11 +48,10 @@ var server = BinaryServer({port: 9000});
 server.on('connection', function(client){
   	  // Incoming stream from browsers
   client.on('stream', function(stream, meta){
-    var shareGroup = new ShareGroup();    // testing ShareGroup class
-    var file = new File(meta.name, meta.path, meta.path, meta.type, client); // testing File class
+    var shareGroup = new ShareGroup();
+    var file = new File(meta.name, meta.path, meta.path, meta.type, client);
     shareGroup.addFile(file);
-    shareGroup.addClient(client);
-    console.log(shareGroup)    ;
+    shareGroup.addClient(client);    
     stream.on('data', function(data){
       stream.write({rx: data.length / meta.size});
     });
