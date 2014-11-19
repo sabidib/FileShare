@@ -15,45 +15,6 @@ def cmd(args):
 	out,err = proc.communicate();
 	return [out,err];
 
-def compileDemos(minify):
-	print "";
-	print "Loading demo file location from demo_info.cfg";
-	with open('demo_info.cfg','r') as f:
-		data = json.load(f);
-
-	build_file_path = "../../build/";
-	root = "../../"
-	for demo in data:
-		final_build_location = build_file_path + "demo/"+demo['name'] +"/" + demo['name'] + ".js";
-		final_build_location_minimized = build_file_path + "demo/"+demo['name'] +"/" + demo['name'] + ".min.js";
-		final_build_location_file = open(final_build_location,"w");
-
-		for script in demo['scripts']:
-			script_location = root+script;
-			with open(script_location) as f:
-				final_build_location_file.write(f.read());
-			final_build_location_file.write("\n");
-		final_build_location_file.close();
-
-		
-		command = "java -jar " + compiler_jar_location + " " + final_build_location + " --warning_level=QUIET --compilation_level SIMPLE_OPTIMIZATIONS "+ " --language_in=ECMASCRIPT5_STRICT " +   " --js_output_file " + final_build_location_minimized;
-		print "    " + command;
-		
-		if(minify):
-			java_output = cmd(command);
-			
-			if(java_output[1] != ""):
-				print ""
-				print "Error :"
-				print "";
-				sys.stderr.write(java_output[1] + '\n');
-				print "Cleaning up";
-				print "";
-				print  java_output[0];
-				sys.exit(1);
-	print "";
-
-
 def compileBaseSource(minify):
 	source_file_path = "../../includes/";
 	final_minimized_build_location = "../../includes/FileShare.min.js"
@@ -102,28 +63,18 @@ def compileBaseSource(minify):
 def parseArgs(argv):
 	parser = OptionParser();
 	parser.add_option("-m", "--minify", action="store_true", default=False, dest="minify",help="minify the output.");
-	parser.add_option("-d", "--demo", action="store_true", default=False, dest="demos",help="build the demos.");
-	parser.add_option("-n", "--no_source", action="store_false", default=True, dest="base",help="do not build the base source file.");
 	options,args = parser.parse_args(argv);
 	return options;
-
-
-
-
 
 
 def main(argv):
 	os.chdir(os.path.dirname(sys.argv[0]))
 	options = parseArgs(argv);
 	
-	base = options.base;
-	minify = options.minify;
-	demos = options.demos;
+	#Keep this true to actually compile!
+	base = True;
 
-	if(base is False and demos is True):
-		print "";
-		print "The base source needs to be built to build the demos, remove the -n argument to build base source files."
-		print "Proceeding without building base source files."
+	minify = options.minify;
 
 	#
 	##
@@ -138,6 +89,7 @@ def main(argv):
 	print "";
 
 	print divider_string
+	
 	##################################################
 	################# Base Source ####################
 	if(base):
@@ -146,15 +98,6 @@ def main(argv):
 
 
 	print divider_string
-
-	##################################################
-	################# Demo Source ####################
-	if(demos):
-		print "Compiling Demos"
-		compileDemos(minify = minify);
-		print divider_string
-
-	##################################################
 
 
 	print "Cleaning up";
