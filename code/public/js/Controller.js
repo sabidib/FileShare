@@ -28,9 +28,11 @@ Controller.prototype.addListeners = function(){
 	$('#add-files').on('click', function(e) {		
 		e.preventDefault();
 		$('#add-files-dialog').click();
-		var files = $('#add-files-dialog').val();
-		console.log(files);
-	})
+		var files = $('#add-files-dialog')[0].files;
+		view.showFilesAboutToBeShared(files);
+	});
+
+
 
 }
 
