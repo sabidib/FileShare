@@ -2,7 +2,11 @@
 var Controller = function Controller(){
 	
 	model = new Model();
-	view = new View();
+	view = new View();	
+	//view.showLoginPage();
+
+
+
 	this.addListeners();
 }
 

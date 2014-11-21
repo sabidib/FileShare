@@ -4,6 +4,11 @@ var View = function View(){
 
 }
 
+View.prototype.showLoginPage = function(){
+	html = ""
+
+}
+
 
 View.prototype.loadMainPage = function(data,name) {
 
