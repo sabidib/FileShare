@@ -13,6 +13,10 @@ var Server = function Server(){
 	this.sessions = [];
 }
 
+Server.prototype.getFileFromID(id){
+	return files(id)
+}
+
 Server.prototype.constructor = Server;
 
 Server.prototype = Object.create(NetworkNode.prototype); 		// inherit from NetworkFileSystemNode

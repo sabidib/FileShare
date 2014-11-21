@@ -1,16 +1,26 @@
 <html>
-    <head>
+    <head>                
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
         <script src="/js/jquery-2.1.1.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script src="http://cdn.binaryjs.com/0/binary.js"></script>
+        <script src="/js/Model.js"></script>
+        <script src="/js/View.js"></script>
+        <script src="/js/Controller.js"></script>
     </head>
 
     <body>
 
-<div id="progress" align="center">0% complete</div>
+
+<button id="add-files">+</button> 
+<input id="add-files-dialog" type="file" multiple>
+
+
+
+<!--<div id="progress" align="center">0% complete</div>
 <div id="box" style="background: #eee; font-size: 26px; width: 400px; height: 300px;line-height: 300px; margin: 0 auto; text-align: center;">
   Connecting...
-</div>
+</div>-->
 
     <script>
         $(function() {
@@ -100,7 +110,7 @@
 
 
 
-
+        var c = new Controller();
     </script>
 
 
