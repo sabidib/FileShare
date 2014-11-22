@@ -16,6 +16,7 @@ var File = function File(name, fileType, client, shareGroup) {
 	this.fileType = fileType;
 	this.client = client;
 	this.id = this.utils.generateRandomKey();
+	this.name = name;
 
 	client.addFile(this);
 	if (shareGroup) {
@@ -30,6 +31,10 @@ File.prototype.constructor = File;					// change constructor from NetworkFileSys
 
 File.prototype.getFileID = function(){
 	return this.id;
+}
+
+File.prototype.getFileName = function(){
+	return this.name;
 }
 
 /**

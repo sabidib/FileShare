@@ -28,9 +28,6 @@ v.showShareGroupsOnlineToChooseFrom = function(shareGroup){
 	list.bootstrapDualListbox('refresh');
 }
 
-
-
-
 v.showLoginFailure = function(data,name) {
 	$('#signInButton').tooltip({'title':"We couldn't log you in...sorry!..try again?"});
 	$('#signInButton').tooltip('show')
@@ -56,16 +53,28 @@ v.showUsernameAlreadyBeingUsed = function(){
 }
 
 
-v.showFilesAboutToBeShared = function(data) {	
+v.showAvailableFilesToStream = function(data){
+
 	htmlString = "<div id='file-list'>";
-	htmlString += "<h2 style='margin-bottom:0;'>You are about to share these files:</h2>";
 	htmlString += "<ul class='alt'>"
 	$.each(data, function(i, f) {		
-		htmlString += "<li>" + f.name + "</li>";
+		htmlString += "<li class='streamableFile' data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>" + f.name + ", share group:" + f.shareGroup.name +  " from user : " + f.user +"</li>";
 	});
 	htmlString += "</ul></div>";	
-	$('#about-to-share').html(htmlString);
+	$('#streamable-files').html(htmlString);
+}
+
+v.showFilesCurrentlyBeingShared = function(data) {	
+	htmlString = "<div id='file-list'>";
+	htmlString += "<ul class='alt'>"
+	$.each(data, function(i, f) {		
+		htmlString += "<li class='sharedFile' data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>" + f.name + ", share group:" + f.shareGroup.name +  "</li>";
+	});
+	htmlString += "</ul></div>";	
+	$('#shared-files').html(htmlString);
 };
+
+
 
 v.showPickUsers = function(users) {	
 	htmlString = "<div id='user-list'>";

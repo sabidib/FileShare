@@ -39,8 +39,7 @@ FileSelectionModal.prototype.addListeners = function(){
 
 FileSelectionModal.prototype.getShareGroupsToShareWith = function(files,callback){
 	this.tempCallback = callback; 
-	view.showFilesAboutToBeShared(files);
-	model.getAllShareGroups(function(data){
+	this.model.getAllShareGroups(function(data){
 		view.showShareGroupsOnlineToChooseFrom(data['shareGroups']);
 	})
 }

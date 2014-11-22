@@ -12,8 +12,9 @@ var Controller = function Controller(hostname,port){
 	model = new Model(this.socket,this.binarySocket);
 	view = new View();	
 
-	fileSelectionModal = new FileSelectionModal(model);
-	
+	fileSelectionModal = new FileSelectionModal(model,view);
+
+	fileBrowser = new FileBrowser(model,view);
 
 	//view.showLoginPage()
 	this.addListeners();
@@ -36,6 +37,13 @@ ctrl.setupBinary = function(hostname,port){
 ctrl.addListeners = function(){
 	controller = this;	
 
+	$('body').on('show.bs.tab','a[data-toggle="tab"]',function(e){
+		if($(e.target).attr('href') == "#browsing"){
+			fileBrowser.showFilesFromShareGroup(0,100);
+		}		
+	})
+
+
 	$('body').on('click','#signInButton',function(e){
 		e.preventDefault();
 		username = $('#inputUsername').val();
@@ -43,8 +51,6 @@ ctrl.addListeners = function(){
 			view.showEmptyUsernameLoginAttempt();
 			return;
 		} 
-
-
 		model.isUserConnected(username,function(data){
 			console.log(data);
 			if(!data['isUserConnected']){
@@ -61,24 +67,6 @@ ctrl.addListeners = function(){
 		});
 	});
 
-
-	$('#id').on('click','body',function(e){
-		controller.setSessionID(e.val())
-		if(model.isValidSessionID(controller.getSessionID())){
-			view.loadMainPage(model.getName());
-		}
-	});
-
-	
-	$('.getFile').on('click',function(e){
-		file_object = model.getFileObject(e.info)
-		strm_req = new StreamRequest(file_object);
-		stream = model.getStream(strm_reqm);
-		if(stream.doesHaveAcces()){
-			controller.startStream(stream);
-		}
-	})
-
 	// This listener pops up a file dialog and allows the user to select files to be shared. After selection,
 	// the user presses OK or Enter and the files selected/about to be shared are shown.
 	// Then a list of all users is retrieved from the server and shown to the current user for selection (who
@@ -90,23 +78,26 @@ ctrl.addListeners = function(){
 			var files = $('#add-files-dialog')[0].files;
 			fileSelectionModal.getShareGroupsToShareWith(files,function(data){
 				toSend = {'files' : files, 'shareGroups' : data['shareGroups']};
-				files = model.notifyServerOfClientsFiles(toSend,function(data){
-					console.log('received : ')
+				model.notifyServerOfClientsFiles(toSend,function(data){
 					console.log(data);
+					view.showFilesCurrentlyBeingShared(data);
 				});
 			})
 
 		});				
-		//var users = model.getClients();
-		//view.showPickUsers(users);		
 	});
 
 
-	$('#about-to-share').bind("DOMSubtreeModified", function(e) {		
+	$('#shared-files').bind("DOMSubtreeModified", function(e) {		
 		$('html, body').animate({
-        	scrollTop: $("#about-to-share").offset().top
+        	scrollTop: $("#shared-files").offset().top
     	}, 2000);
 	})
+	
+	$('body').on('click',"li .streamableFile",function(e){
+		
+	});
+
 
 }
 

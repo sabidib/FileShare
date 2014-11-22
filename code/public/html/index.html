@@ -19,6 +19,7 @@
         <script src="http://cdn.binaryjs.com/0/binary.js"></script>
         <script src="/js/Model.js"></script>
         <script src="/js/View.js"></script>
+        <script src="/js/FileBrowser.js"></script>
         <script src="/js/FileSelectionModal.js"></script>
         <script src="/js/Controller.js"></script>
         <script src="/js/main.js"></script>
@@ -83,37 +84,57 @@
 
 
 
-
-
-
-
-
         <!-- Show shared files -->
         <section id="files" class="files" hidden>
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12 text-center">
-                        <h2>These files are currently being shared with you:</h2>
-                        <div id="shared-files"></div>
+
+          <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#sharing" aria-controls="Sharing" role="tab" data-toggle="tab">Sharing</a></li>
+            <li role="presentation"><a href="#browsing" aria-controls="Browsing" role="tab" data-toggle="tab">Browsing</a></li>
+            <li role="presentation"><a href="#streaming" aria-controls="Streaming" role="tab" data-toggle="tab">Streaming/Downloading</a></li>
+          </ul>
+
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="sharing">
+
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-12 text-center">
+                                <h2>You are sharing:</h2>
+                                <div id="shared-files">
+                                    
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.row -->
                     </div>
                 </div>
-                <!-- /.row -->
+                <div role="tabpanel" class="tab-pane" id="browsing">
+
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-12 text-center">
+                                <h2>You can stream:</h2>
+                                <div id="streamable-files">
+                                    
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.row -->
+                    </div>                   
+
+
+                </div>
+                <div role="tabpanel" class="tab-pane" id="streaming"></div>
             </div>
+
             <!-- /.container -->
         </section>
-        <!-- Show files about to be shared -->
-        <section id="share-files" class="share-files">
-         <div class="container">
-                <div class="row">
-                    <div class="col-lg-12 text-center">                        
-                        <div id="about-to-share">                                              
-                        </div>
-                    </div>
-                </div>
-                <!-- /.row -->
-            </div>
-            <!-- /.container -->          
-        </section>
+
+
+
+
 
     </body>
 </html>

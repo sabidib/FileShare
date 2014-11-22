@@ -37,9 +37,14 @@ m.getAllShareGroups = function(callback){
 }
 
 m.notifyServerOfClientsFiles = function(data,callback){
-	console.log(data);
 	this.setCallback('notifyServerOfClientsFilesResponse',callback);
 	this.socket.emit('notifyServerOfClientsFiles',data);		
 }
 
+
+m.getFilesFromShareGroup = function(data,callback){
+	this.setCallback('getFilesFromShareGroupResponse',callback);
+	this.socket.emit('getFilesFromShareGroup',data);	
+
+}
 

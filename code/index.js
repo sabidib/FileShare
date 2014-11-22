@@ -92,8 +92,33 @@ io.on('connection', function(socket){
 
   socket.on('createShareGroup' ,function(data){
     var s = new ShareGroup(data['name']); 
-    shareGroups.push(s);
+    shareGroups[s.getShareGroupID()] = s;
     socket.emit('createShareGroupResponse',{'sucess':true});
+  });
+
+  socket.on('getFilesFromShareGroup',function(data){
+    var response = {'files' : {}};
+    var id = data['id'];
+    var amount = data['amount'];
+    var group = shareGroups[id];
+    var c = 0;
+    for(var i in group.files){
+        if(c == amount ){
+            break;
+        }   
+        f = group.files[i];
+        response['files'][i] = {
+            'name' : f.getFileName(),
+            'id' : f.getFileID(),
+            'user' : f.client.username,
+            'shareGroup' : {
+                'id' : f.shareGroup.getShareGroupID(),
+                'name' : f.shareGroup.getShareGroupName()
+            } 
+        }       
+        c++; // Bjarne would be proud...jeeez
+    }
+    socket.emit('getFilesFromShareGroupResponse',response)
   });
 
   socket.on('notifyServerOfClientsFiles',function(data){
@@ -111,7 +136,18 @@ io.on('connection', function(socket){
             }
         };
     };
-    console.log(client.files);
+    file_info_to_return = [];
+    for(var item in client.files){
+        file_info_to_return.push({'name':client.files[item].getFileName(),
+                                  'id':client.files[item].getFileID(),
+                                  'shareGroup' :{
+                                    'id' :  client.files[item].shareGroup.getShareGroupID(),
+                                    'name' : client.files[item].shareGroup.getShareGroupName()
+                                  }
+                              });
+    }
+
+    socket.emit('notifyServerOfClientsFilesResponse',file_info_to_return);
   })
 
 
