@@ -4,21 +4,47 @@ var View = function View(){
 
 }
 
-View.prototype.showLoginPage = function(){
+v = View.prototype;
+
+v.showLoginForm = function(container){
 	html = ""
+}
+
+v.showMainPage = function(username){
+	$('#loginContainer').hide();
+	$('#mainContainer').show();
+	$('#files').show();
+	$('.usernameBlank').html(username);
 
 }
 
 
-View.prototype.loadMainPage = function(data,name) {
-
-	htmlString += getTableOfFiles(data.file_array)
-
-	$('#mainBody').html(htmlString)
+v.showLoginFailure = function(data,name) {
+	$('#signInButton').tooltip({'title':"We couldn't log you in...sorry!..try again?"});
+	$('#signInButton').tooltip('show')
+	setTimeout(function() {
+		$('#signInButton').tooltip('destroy')
+	}, 4000);
 };
 
+v.showEmptyUsernameLoginAttempt = function(){
+	$('#inputUsername').tooltip({'title':"You need to enter a username"});
+	$('#inputUsername').tooltip('show')
+	setTimeout(function() {
+		$('#inputUsername').tooltip('destroy')
+	}, 4000);
+}
 
-View.prototype.showFilesAboutToBeShared = function(data) {	
+v.showUsernameAlreadyBeingUsed = function(){
+	$('#inputUsername').tooltip({'title':"Someone is already using that name"});
+	$('#inputUsername').tooltip('show')
+	setTimeout(function() {
+		$('#inputUsername').tooltip('destroy')
+	}, 4000);
+}
+
+
+v.showFilesAboutToBeShared = function(data) {	
 	htmlString = "<div id='file-list'>";
 	htmlString += "<h2 style='margin-bottom:0;'>You are about to share these files:</h2>";
 	htmlString += "<ul class='alt'>"
@@ -29,7 +55,7 @@ View.prototype.showFilesAboutToBeShared = function(data) {
 	$('#about-to-share').html(htmlString);
 };
 
-View.prototype.showPickUsers = function(users) {	
+v.showPickUsers = function(users) {	
 	htmlString = "<div id='user-list'>";
 	htmlString += "<h2 style='margin-bottom:0;'>Who?</h2>";
 	htmlString += "<ul class='alt'>"

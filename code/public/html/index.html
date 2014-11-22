@@ -12,6 +12,7 @@
 
         <!--Javascript includes -->
         <script src="/js/jquery-2.1.1.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script src="http://cdn.binaryjs.com/0/binary.js"></script>
         <script src="/js/Model.js"></script>
@@ -23,27 +24,39 @@
     <body>      
 
         <!-- Login -->
+        <div id='loginContainer'>
          <header id="top" class="header">
             <div class="text-vertical-center">
                 <h1>Start Sharing</h1>
                  <!-- Login  view goes here-->               
-                 <div id="login-box">
-                   
-                   ADD LOGIN STUFF HERE <br>
-                   USER: ENTER USERNAME <br>
-                   PASSWORD: ENTER PASSWORD <br>
-                   LOGIN BUTTON <br>
-                   Once logged in, the following two buttons should be shown here. <br>
-                 </div>
+                 <div id="login-box" class='container'>
+                    <form class="form-signin" role="form">
+                        <h2 class="form-signin-heading">Please sign in</h2>
+                        <label for="inputUsername" data-trigger="manual" data-toggle='tooltip' class="sr-only">Username</label>
+                        <input type="username" id="inputUsername" class="form-control" placeholder="username" required autofocus>
+                        <br>
+                        <button class="btn btn-lg btn-primary btn-block" data-trigger="manual" data-toggle='tooltip'id='signInButton'>Sign in</button>
+                    </form>
                 <br>
-                <a id="share-button" href="#share-files" class="btn btn-dark btn-lg">Share</a>                
-                <a href="#files" class="btn btn-dark btn-lg">View</a>
-                <input id="add-files-dialog" type="file" name="files[]" multiple>
             </div>
         </header>
+        </div>
+
+        <div id='mainContainer' hidden>
+             <header id="top" class="header">
+                <div class="text-vertical-center">
+                    <h1>Start Sharing <span class='usernameBlank'></span></h1>
+                    <br>
+                    <a id="share-button" href="#share-files" class="btn btn-dark btn-lg">Share</a>                
+                    <a href="#files" class="btn btn-dark btn-lg">View</a>
+                    <input id="add-files-dialog" type="file" name="files[]" multiple>
+                </div>
+            </header>
+        </div>
+
 
         <!-- Show shared files -->
-        <section id="files" class="files">
+        <section id="files" class="files" hidden>
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12 text-center">

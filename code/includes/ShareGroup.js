@@ -26,6 +26,7 @@ ShareGroup.prototype.getShareGroupID = function() {
 
 /**
 * Add a client to the clients list.
+* 
 * @param {Client} client The client to be added to the clients list.
 */
 ShareGroup.prototype.addClient = function (aClient) {
@@ -37,8 +38,11 @@ ShareGroup.prototype.addClient = function (aClient) {
     }
 	this.clients.push(aClient);
 	aClient.addShareGroup(this);
-	this.numberOfClients++;
 };
+
+ShareGroup.prototype.getNumberOfClients = function(){
+	return this.clients.length;
+}
 
 /**
 * Add a file to be shared with all clients.

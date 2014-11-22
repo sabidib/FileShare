@@ -1,14 +1,65 @@
 
-var Controller = function Controller(){
+
+
+var Controller = function Controller(hostname,port){
 	
-	model = new Model();
+	this.binarySocket = {};
+	this.socket = {};
+
+	this.setupSocketIO();
+	this.setupBinary(hostname,port);
+
+	model = new Model(this.socket,this.binarySocket);
 	view = new View();	
+	
+
 	//view.showLoginPage()
 	this.addListeners();
 }
 
-Controller.prototype.addListeners = function(){
+ctrl = Controller.prototype;
+
+
+ctrl.setupSocketIO = function(){
+    this.socket = io();    
+    this.socket.on('omg',function(data){
+    	console.log('omg!' + data);
+    })
+}
+
+ctrl.setupBinary = function(hostname,port){
+    this.binarySocket = new BinaryClient('ws://'+hostname+':'+port);
+}
+
+ctrl.addListeners = function(){
 	controller = this;	
+
+	$('body').on('click','#signInButton',function(e){
+		e.preventDefault();
+		username = $('#inputUsername').val();
+		if(username == ""){
+			view.showEmptyUsernameLoginAttempt();
+			return;
+		} 
+
+
+		model.isUserConnected(username,function(data){
+			console.log(data);
+			if(!data['isUserConnected']){
+				model.loginUser(username,function(data){
+					if(data['success']){
+						view.showMainPage(username);				
+					} else {
+						view.showLoginFailure();
+					}
+				});
+			} else {
+				view.showUsernameAlreadyBeingUsed();
+			}
+		});
+	});
+
+
 	$('#id').on('click','body',function(e){
 		controller.setSessionID(e.val())
 		if(model.isValidSessionID(controller.getSessionID())){
@@ -47,13 +98,70 @@ Controller.prototype.addListeners = function(){
     	}, 2000);
 	})
 
-
 }
 
-Controller.prototype.setSessionID = function(sessionID){
+
+
+
+ctrl.handleSendingFile = function(){
+    var box = $('#box');
+    box.on('dragenter', doNothing);
+    box.on('dragover', doNothing);
+    box.text('Drag files here');
+    box.on('drop', function(e){
+        e.originalEvent.preventDefault();                    
+        var file = e.originalEvent.dataTransfer.files[0];                    
+        // Add to list of uploaded files
+        $('<div align="center"></div>').append($('<a></a>').text(file.name).prop('href', '/'+file.name)).appendTo('body');
+            
+            // `client.send` is a helper function that creates a stream with the 
+            // given metadata, and then chunks up and streams the data.
+            var filePath = "/"; // need to somehow get file path
+            var stream = client.send(file, {name: file.name, size: file.size, type:file.type, path:filePath});
+            
+            // Print progress
+            var tx = 0;
+            stream.on('data', function(data){
+            $('#progress').text(Math.round(tx+=data.rx*100) + '% complete');
+         });
+      }); 
+}
+
+
+ctrl.setupBinaryListeners = function(){
+	this.binarySocket.on('open',this.handleSendingFile)
+	this.binarySocket.on('stream',this.receiveStreamFromServer)
+}
+
+
+ctrl.receiveStreamFromServer = function(stream,meta){
+	  // Buffer for parts
+	  var parts = [];
+	  // Got new data
+	  stream.on('data', function(data){            
+	    parts.push(data);
+	  });
+	  stream.on('end', function(){
+	    // Display new data in browser!
+	    var img = document.createElement("img");
+	    img.src = (window.URL || window.webkitURL).createObjectURL(new Blob(parts));
+	    document.body.appendChild(img);
+
+	    var audioElement = document.createElement('audio');
+	    audioElement.setAttribute('src',(window.URL || window.webkitURL).createObjectURL(new Blob(parts)));
+	    audioElement.setAttribute('type','audio/mpeg');
+	    audioElement.play();
+	  });
+}
+
+
+
+
+
+ctrl.setSessionID = function(sessionID){
 	this.sessionID = sessionID; 
 }
 
-Controller.prototype.getSessionID = function(){
+ctrl.getSessionID = function(){
 	return sessionID;
 }

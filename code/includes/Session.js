@@ -1,12 +1,15 @@
 
-var Session = function Session(){
-	this.key = this.generateRandomKey();
+var Session = function Session(cookieParser,cookieSession){
+	this.sessionID = this.generateRandomKey()();
+	this.cookieParser = cookieParser;
+	this.cookieSession = cookieSession;
+	this.table = {};
 }
 
 Session.prototype.constructor = Session;
 
 Session.prototype.getSessionID = function(){
-	return this.key;
+	return this.sessionID;
 }
 
 Session.prototype.generateRandomKey = function(){
@@ -21,6 +24,10 @@ Session.prototype.generateRandomKey = function(){
 		           s4() + '-' + s4() + s4() + s4();
 		  };
 		})();
+}
+
+Session.prototype.set = function(key,value){
+	this.table['key'] = value;
 }
 
 

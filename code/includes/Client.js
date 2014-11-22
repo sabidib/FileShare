@@ -6,19 +6,18 @@ var Session = require('./Session.js');
 
 
 
-var Client = function Client(username,server,socket){
+var Client = function Client(username,server,socket,session){
 	this.server = server;
 	this.username = username;
 	this.loginTime = new Date();
 	this.numberOfFilesStreamed = 0;
 	this.numberOfFilesStreaming = 0;
-	this.session = new Session();
 	this.shareGroupsThatIAmIn = [];
 	this.socket = socket;
+	this.session = session;
 	this.server.addClient(this);
+	this.addShareGroup(globalShareGroup);	
 }
-
-
 
 Client.prototype.constructor = Client;
 
@@ -30,21 +29,19 @@ Client.prototype.getSocket = function(){
 	return this.socket;
 }
 
-
-Client.prototype.setSessionID = function(sessionID){
-	this.sessionID = sessionID; 
-}
-
-Client.prototype.getSessionID = function(){
-	return sessionID;
-}
-
 Client.prototype.getUsername = function(){
 	return this.username;
 }
 
 Client.prototype.addShareGroup = function(shareGroup) {
-	console.log("IMPLEMENTATION: Client.addShareGroup is not implemented...returning true.");
+	var wasAdded = false;
+	for (var i = this.shareGroupsThatIAmIn.length - 1; i >= 0; i--) {
+		if(this.shareGroupsThatIAmIn[i].shareGroupID == shareGroup.shareGroupID){
+			return false;
+		}
+	};
+	this.shareGroupsThatIAmIn.push(this);
+	shareGroup.addClient(this);
 	return true;
 };
 
@@ -52,6 +49,10 @@ Client.prototype.setServer = function(server){
 	this.server = server;
 	return true;
 };
+
+Client.prototype.setStatusToLoggedIn = function(){
+	this.session.set('loggedIn',true);
+}
 
 
 
