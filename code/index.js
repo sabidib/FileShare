@@ -14,8 +14,11 @@ var File = require('./includes/File.js'); // testing File class
 var ShareGroup = require('./includes/ShareGroup.js'); // testing ShareGroup class
 var Server = require('./includes/Server.js');
 var Session = require('./includes/Session.js')
-var Client = require('./includes/Client.js')
-globalShareGroup = new ShareGroup();
+var Client = require('./includes/Client.js') 
+
+globalShareGroup = new ShareGroup('global');
+shareGroups = {};
+shareGroups[globalShareGroup.getShareGroupID()] = globalShareGroup;
 
 server = new Server();
 
@@ -25,6 +28,7 @@ var client = {};
 app.use(express.static(__dirname + '/public'));
 
 key = "DoLphInsLoVEEProGaming$!%";
+
 
 app.get('/', function(req, res){
     cookies = new Cookies( req, res, key )
@@ -37,6 +41,10 @@ app.get('/', function(req, res){
 
 
 io.on('connection', function(socket){
+
+    socket.on('disconnect',function(socket){
+        console.log('They left!!');
+    });
 
   socket.on('isUserConnected',function(data){
         response = {'isUserConnected': true};
@@ -60,6 +68,52 @@ io.on('connection', function(socket){
     console.log(data['username'] + " has logged in successfully!");
     socket.emit('loginUserResponse',response);
   });
+
+  socket.on('getUsersOnline',function(data){
+    //todo: make sure it's valid user that has been authenticated
+    var response = {'users':[]} 
+    for (var i = server.clients.length - 1; i >= 0; i--) {
+        response['users'].push(server.clients[i].getUsername());
+    }
+    socket.emit('getUsersOnlineResponse',response);
+  });
+
+
+  socket.on('getAllShareGroups',function(data){
+    //todo: make sure it's valid user that has been authenticated
+    var response = {'shareGroups':[]} 
+    for(i in shareGroups){
+        response['shareGroups'].push({'name': shareGroups[i].getShareGroupName() , 
+                                'id' : shareGroups[i].getShareGroupID()
+                            });
+    }
+    socket.emit('getAllShareGroupsResponse',response);
+  });
+
+  socket.on('createShareGroup' ,function(data){
+    var s = new ShareGroup(data['name']); 
+    shareGroups.push(s);
+    socket.emit('createShareGroupResponse',{'sucess':true});
+  });
+
+  socket.on('notifyServerOfClientsFiles',function(data){
+    var files = data['files'];
+    for (var i = data['shareGroups'].length - 1; i >= 0; i--) {
+        client.addShareGroup(data['shareGroups'][i]);
+    };
+
+    for (var i = files.length - 1; i >= 0; i--) {
+        for (var j = data['shareGroups'].length - 1; j >= 0; j--) {
+            if(shareGroups[data['shareGroups'][j]] != undefined){
+                group = shareGroups[data['shareGroups'][j]];
+                console.log('added a file');
+                var file = new File(files[i].name,files[i].type,client,group)       
+            }
+        };
+    };
+    console.log(client.files);
+  })
+
 
 
 });

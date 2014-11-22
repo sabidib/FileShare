@@ -5,6 +5,7 @@
         <!--The following stylesheets are taken from: http://startbootstrap.com/template-overviews/stylish-portfolio/ -->
         <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="/css/stylish-portfolio.css">
+        <link rel="stylesheet" type="text/css" href="/css/bootstrap-duallistbox.css">
 
         <!-- Fonts -->
         <link href="font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -13,10 +14,12 @@
         <!--Javascript includes -->
         <script src="/js/jquery-2.1.1.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+        <script src="/js/jquery.bootstrap-duallistbox.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script src="http://cdn.binaryjs.com/0/binary.js"></script>
         <script src="/js/Model.js"></script>
         <script src="/js/View.js"></script>
+        <script src="/js/FileSelectionModal.js"></script>
         <script src="/js/Controller.js"></script>
         <script src="/js/main.js"></script>
     </head>
@@ -53,6 +56,36 @@
                 </div>
             </header>
         </div>
+
+
+
+        <!-- User Modal -->
+        <div class="modal fade" id='shareGroupChoosingModal'>
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Who would you like to share with?</h4>
+              </div>
+              <div class="modal-body">
+                <select id='shareGroupDualListBox' multiple="multiple" size="10">
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" id='submitShareWithGlobalGroup'>Share with everyone!</button>
+                <button type="button" class="btn btn-primary" id='submitShareWith'>Share with</button>
+              </div>
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+
+
+
+
+
+
+
 
 
         <!-- Show shared files -->

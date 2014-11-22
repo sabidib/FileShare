@@ -1,6 +1,9 @@
+var Utilities = require('./Utilities.js');
+
 
 var Session = function Session(cookieParser,cookieSession){
-	this.sessionID = this.generateRandomKey()();
+	this.utils = new Utilities();
+	this.sessionID = this.utils.generateRandomKey();
 	this.cookieParser = cookieParser;
 	this.cookieSession = cookieSession;
 	this.table = {};
@@ -12,19 +15,6 @@ Session.prototype.getSessionID = function(){
 	return this.sessionID;
 }
 
-Session.prototype.generateRandomKey = function(){
-	return (function() {
-		  function s4() {
-		    return Math.floor((1 + Math.random()) * 0x10000)
-		               .toString(16)
-		               .substring(1);
-		  }
-		  return function() {
-		    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-		           s4() + '-' + s4() + s4() + s4();
-		  };
-		})();
-}
 
 Session.prototype.set = function(key,value){
 	this.table['key'] = value;

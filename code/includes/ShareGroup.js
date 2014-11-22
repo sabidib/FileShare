@@ -3,8 +3,9 @@
  * @class
  */
 
-var ShareGroup = function ShareGroup() {
+var ShareGroup = function ShareGroup(name) {
 	this.files = [];
+	this.name = name;
 	this.clients = [];
 	this.numberOfClients = 0;
 	this.numberOfFiles = 0;
@@ -22,6 +23,18 @@ ShareGroup.prototype.getNewShareGroupIDFromServer = function(){
 
 ShareGroup.prototype.getShareGroupID = function() {
 	return this.shareGroupID;
+}
+ShareGroup.prototype.getShareGroupName = function(){
+	return this.name;
+}
+
+ShareGroup.prototype.addFile = function(file){
+	if(this.files[file.getFileID()] == undefined){
+		this.files[file.getFileID()] = file;
+		return true;
+	}  else {
+		return false;
+	}
 }
 
 /**
@@ -43,14 +56,8 @@ ShareGroup.prototype.addClient = function (aClient) {
 ShareGroup.prototype.getNumberOfClients = function(){
 	return this.clients.length;
 }
-
-/**
-* Add a file to be shared with all clients.
-* @param {File} client The file to be shared with all clients.
-*/
-ShareGroup.prototype.addFile = function (file) {
-	this.files.push(file);
-	this.numberOfFiles++;
-};
+ShareGroup.prototype.getNumberOfFiles = function(){
+	return this.files.length;
+}
 
  module.exports = ShareGroup;				// this line is so that this class can be accessed by other files

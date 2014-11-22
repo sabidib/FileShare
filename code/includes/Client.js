@@ -17,9 +17,23 @@ var Client = function Client(username,server,socket,session){
 	this.session = session;
 	this.server.addClient(this);
 	this.addShareGroup(globalShareGroup);	
+	this.files = []
 }
 
+
+
 Client.prototype.constructor = Client;
+
+
+Client.prototype.addFile = function(file){
+	if(this.files[file.getFileID()] == undefined){
+		this.files[file.getFileID()] = file;
+		return true;
+	}  else {
+		return false;
+	}
+
+}
 
 Client.prototype.setSocket = function(socket){
 	this.socket = socket;

@@ -15,8 +15,20 @@ v.showMainPage = function(username){
 	$('#mainContainer').show();
 	$('#files').show();
 	$('.usernameBlank').html(username);
-
 }
+
+v.showShareGroupsOnlineToChooseFrom = function(shareGroup){
+	$('#shareGroupChoosingModal').modal('show');
+	console.log(shareGroup);
+	var list = $('#shareGroupDualListBox').bootstrapDualListbox();
+	list.empty();
+	for (var i = shareGroup.length - 1; i >= 0; i--) {
+		list.append("<option value='"+shareGroup[i]['id']+"'>"+shareGroup[i]['name']+"</option>");
+	};
+	list.bootstrapDualListbox('refresh');
+}
+
+
 
 
 v.showLoginFailure = function(data,name) {

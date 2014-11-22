@@ -11,6 +11,8 @@ var Controller = function Controller(hostname,port){
 
 	model = new Model(this.socket,this.binarySocket);
 	view = new View();	
+
+	fileSelectionModal = new FileSelectionModal(model);
 	
 
 	//view.showLoginPage()
@@ -86,11 +88,19 @@ ctrl.addListeners = function(){
 		$('#add-files-dialog').click();
 		$('#add-files-dialog').change(function() {
 			var files = $('#add-files-dialog')[0].files;
-			view.showFilesAboutToBeShared(files);
+			fileSelectionModal.getShareGroupsToShareWith(files,function(data){
+				toSend = {'files' : files, 'shareGroups' : data['shareGroups']};
+				files = model.notifyServerOfClientsFiles(toSend,function(data){
+					console.log('received : ')
+					console.log(data);
+				});
+			})
+
 		});				
 		//var users = model.getClients();
 		//view.showPickUsers(users);		
 	});
+
 
 	$('#about-to-share').bind("DOMSubtreeModified", function(e) {		
 		$('html, body').animate({

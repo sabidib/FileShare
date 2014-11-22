@@ -1,4 +1,5 @@
-var NetworkFileSystemNode = require('./NetworkFileSystemNode.js');
+//var NetworkFileSystemNode = require('./NetworkFileSystemNode.js');
+var Utilities = require('./Utilities.js');
 var ShareGroup = require('./ShareGroup.js');
 /**
  * Creates a new File.
@@ -9,18 +10,27 @@ var ShareGroup = require('./ShareGroup.js');
  * @param {string} fileType The file type of this file.
  * @param {Client} Client The client that has this file.
  */
-var File = function File(name, path, location, fileType, client, shareGroup) {
-	NetworkFileSystemNode.call(this, name, path, location);	
+var File = function File(name, fileType, client, shareGroup) {
+	//NetworkFileSystemNode.call(this, name);	
+	this.utils = new Utilities();
 	this.fileType = fileType;
 	this.client = client;
+	this.id = this.utils.generateRandomKey();
+
+	client.addFile(this);
 	if (shareGroup) {
 		shareGroup.addFile(this);
 		this.shareGroup = shareGroup;	
 	}	
 }
 
-File.prototype = Object.create(NetworkFileSystemNode.prototype); 		// inherit from NetworkFileSystemNode
+//File.prototype = Object.create(NetworkFileSystemNode.prototype); 		// inherit from NetworkFileSystemNode
 File.prototype.constructor = File;					// change constructor from NetworkFileSystemNode's constructor to File's constructor
+
+
+File.prototype.getFileID = function(){
+	return this.id;
+}
 
 /**
 * Set the shareGroup for this file and add it as a client.
@@ -30,6 +40,7 @@ File.prototype.setShareGroup = function(shareGroup) {
 	shareGroup.addFile(this);
 	this.shareGroup = shareGroup;
 }
+
 
 
 module.exports = File;				// this line is so that this class can be accessed by other files
