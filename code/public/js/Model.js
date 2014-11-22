@@ -1,9 +1,2 @@
-
-
-var Model = function Model(){
-
-
-
+var Model = function Model(){		
 }
-
-
