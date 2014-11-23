@@ -39,6 +39,22 @@ ctrl.setupBinary = function(hostname,port){
 
 ctrl.addListeners = function(){
 	controller = this;	
+	$(document).ready(function() {
+		username = localStorage.getItem('username');		
+		if (username){			
+			controller.model.loginUser(username,function(data){
+				if(data['success']){
+					view.showMainPage(username);				
+				} else {
+					view.showLoginFailure();
+				}				
+			});
+		}
+		else {
+			view.showMainPage();
+		}
+	});
+
 
 	$('body').on('show.bs.tab','a[data-toggle="tab"]',function(e){
 		if($(e.target).attr('href') == "#browsing"){
@@ -59,7 +75,8 @@ ctrl.addListeners = function(){
 			if(!data['isUserConnected']){
 				controller.model.loginUser(username,function(data){
 					if(data['success']){
-						view.showMainPage(username);				
+						view.showMainPage(username);	
+						localStorage.setItem('username', username);
 					} else {
 						view.showLoginFailure();
 					}
@@ -138,7 +155,19 @@ ctrl.addListeners = function(){
 		});
 	});
 
+	$('#logout-button').on('click', function(e) {		
+		e.preventDefault();				
+		var username = localStorage.getItem('username');					
+		controller.model.logoutUser(username,function(data){					
+				if(data['success']) {
+					localStorage.removeItem('username');					
+					location.reload();					
 
+				} else {
+					alert("Logout failed.");
+				}				
+		});
+	});
 }
 
 

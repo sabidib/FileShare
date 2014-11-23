@@ -30,6 +30,12 @@ m.loginUser = function(username,callback){
 									});
 	this.socket.emit('loginUser',{'username' : username});
 }
+
+m.logoutUser = function(username,callback){		
+	this.setCallback('logoutUserResponse', function(data){ callback(data); });	
+	this.socket.emit('logoutUser',{'username' : username});	
+}
+
 m.getUsersOnline = function(callback){
 	this.setCallback('getUsersOnlineResponse',callback);
 	this.socket.emit('getUsersOnline');

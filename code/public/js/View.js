@@ -11,10 +11,18 @@ v.showLoginForm = function(container){
 }
 
 v.showMainPage = function(username){
-	$('#loginContainer').hide();
-	$('#mainContainer').show();
-	$('#files').show();
-	$('.usernameBlank').html(username);
+	if(username) {
+		$('#loginContainer').hide();
+		$('#mainContainer').show();
+		$('#files').show();
+		$('.usernameBlank').html(username);
+	}
+	else {
+		$('#loginContainer').show();
+		$('#mainContainer').hide();
+		$('#files').hide();
+		$('.usernameBlank').html();	
+	}
 }
 
 v.showFilesAboutToShare = function(files) {	
