@@ -34,6 +34,14 @@ v.showFilesAboutToShare = function(files) {
 }
 
 
+v.showFileBeingEdited = function(file) {	
+	var list = $('#files-to-be-shared');
+	$('#fileSelectionModalHeader').html("Editing file:");
+	list.empty();
+	list.append("<li>" + file.name + "</li>");
+}
+
+
 v.showMustAddUsernamesForCreateShareGroup = function(){
 	$('#userDualListBox').tooltip({'title':"You need to select at least 1 user!"});
 	$('#userDualListBox').tooltip('show')
@@ -50,13 +58,23 @@ v.updateCurrentShareGroupTable = function(groups){
 		list.append("<li data-id-share-group-id='"+groups[i]['id']+"'>" + groups[i]['name'] + "</li>");
 	};	
 }
-
-v.showShareGroupsOnlineToChooseFrom = function(shareGroup){
+v.showShareGroupsOnlineToChooseFrom = function(shareGroup, selectedShareGroups){
 	$('#shareGroupChoosingModal').modal('show');	
 	var list = $('#shareGroupDualListBox').bootstrapDualListbox();	
+	selected = {};
+	if (selectedShareGroups) {
+		for (var i = selectedShareGroups.length - 1; i >= 0; i--) {
+			selected[selectedShareGroups[i]['id']] = true;
+		};
+	}
 	list.empty();
-	for (var i = shareGroup.length - 1; i >= 0; i--) {
-		list.append("<option value='"+shareGroup[i]['id']+"'>"+shareGroup[i]['name']+"</option>");
+	for (var i = shareGroup.length - 1; i >= 0; i--) {		
+		if (selected[shareGroup[i]['id']]) {
+			list.append("<option selected value='"+shareGroup[i]['id']+"'>"+shareGroup[i]['name']+"</option>");
+		}
+		else {
+			list.append("<option value='"+shareGroup[i]['id']+"'>"+shareGroup[i]['name']+"</option>");
+		}
 	};
 	list.bootstrapDualListbox('refresh');
 }
@@ -111,7 +129,7 @@ v.showAvailableFilesToStream = function(data){
 		htmlString = "<table><thead><th>Filename</th><th>Share Group</th><th>Download</th><th>Stream</th></thead><tbody>";	
 		$.each(data, function(i, f) {		
 			htmlString += "<tr><td>" + f.name + "</td><td>" + f.shareGroup.name +  "</td>";
-			htmlString += "<td><button class='download-button' data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>Download</button></td>";			
+			htmlString += "<td><button class='download-button' name='" + f.name + "'data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>Download</button></td>";			
 			htmlString += "<td><button class='stream-button' data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>Stream</button></td></tr>";
 		});
 		htmlString += "</tbody></table>";	
@@ -124,10 +142,24 @@ v.showAvailableFilesToStream = function(data){
 
 v.showFilesCurrentlyBeingShared = function(data) {	
 	if (data) {	
-		htmlString = "<table><thead><th>Filename</th><th>Share Groups</th></thead><tbody>";	
+		var files = {};
+		var fileIDs = {};		
+		var file_names = [];
+		htmlString = "<table><thead><th>Filename</th><th>Share Groups</th><th>Edit</th></thead><tbody>";	
 		$.each(data, function(i, f) {		
-			htmlString += "<tr class='sharedFile' data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'><td>" + f.name + "</td><td>" + f.shareGroup.name +  "</td></tr>";
+			if (!files[f.name]) {
+				files[f.name] = [];				
+				file_names.push(f.name);				
+				fileIDs[f.name] = f.id;
+			}			
+			files[f.name].push(f.shareGroup.name);	
 		});
+		file_names.sort();		
+		file_names.forEach(function (f) {									
+			htmlString += "<tr class='sharedFile'><td>" + f + "</td><td>" + files[f].join(',') +  "</td>";
+			htmlString += "<td><button class='edit-file-button' data-file-id='" + fileIDs[f] + "'>Edit</button></td></tr>"
+		});		
+
 		htmlString += "</tbody></table>";	
 	}
 	else {

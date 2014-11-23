@@ -39,13 +39,28 @@ FileSelectionModal.prototype.addListeners = function(){
 // Displays the share groups that a user can share with (if any files were selected to be shared)
 FileSelectionModal.prototype.getShareGroupsToShareWith = function(files,callback){
 	this.tempCallback = callback; 
+	$('#submitShareWithGlobalGroup').show();
+	$('#submitShareWith').html('Share with');
 	if (files.length) {
-		this.model.getAllShareGroups(function(data){
-			view.showShareGroupsOnlineToChooseFrom(data['shareGroups']);			
-		})
+		this.model.getShareGroupsForUser(localStorage.getItem('username'), function(groups) {
+			view.showShareGroupsOnlineToChooseFrom(groups);			
+		});
 		view.showFilesAboutToShare(files);
 	}	
 }
+
+// Displays the share groups that a user can share with (if any files were selected to be shared)
+FileSelectionModal.prototype.editFileShareGroups = function(data,callback){
+	this.tempCallback = callback;
+	$('#submitShareWithGlobalGroup').hide();
+	$('#submitShareWith').html('Update');
+	this.model.getShareGroupsForUser(localStorage.getItem('username'), function(groups) {		
+		view.showShareGroupsOnlineToChooseFrom(groups, data['shareGroups']);
+	});			
+	view.showFileBeingEdited(data['file']);
+}
+
+
 
 
 

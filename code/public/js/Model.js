@@ -26,7 +26,7 @@ m.loginUser = function(username,callback){
 	var md = this;		
 	this.socket.emit('loginUser',{'username' : username});	
 	this.setCallback('loginUserResponse',callback);
-	setTimeout(function() {md.binarySocket.send("file",{'shw' : true})}, 400);
+	setTimeout(function() {md.binarySocket.send("file",{'soMuchHacksWeNeedBinarySocketClientAssociatedWithClient' : true})}, 400);
 }
 
 m.logoutUser = function(username,callback){		
@@ -60,6 +60,23 @@ m.notifyServerOfClientsFiles = function(data,callback){
 m.getFilesFromShareGroup = function(data,callback){
 	this.setCallback('getFilesFromShareGroupResponse',callback);
 	this.socket.emit('getFilesFromShareGroup',data);	
+}
+
+
+m.getFilesFromUser = function(username,callback){
+	this.setCallback('getFilesFromUserResponse',callback);
+	this.socket.emit('getFilesFromUser',{'username': username});	
+}
+
+m.updateFileWithShareGroup = function(data,callback){
+	this.setCallback('updateFileWithShareGroupResponse',callback);
+	this.socket.emit('updateFileWithShareGroup',data);	
+
+}
+
+m.getShareGroupsForFile = function(data,callback){
+	this.setCallback('getShareGroupsForFileResponse',callback);
+	this.socket.emit('getShareGroupsForFile',data);	
 
 }
 

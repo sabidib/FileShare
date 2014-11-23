@@ -35,6 +35,11 @@ Client.prototype.addFile = function(file){
 
 }
 
+Client.prototype.removeFile = function(file){
+	delete this.files[file.getFileID()];
+}
+
+
 Client.prototype.setSocket = function(socket){
 	this.socket = socket;
 }
