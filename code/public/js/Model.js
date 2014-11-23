@@ -23,12 +23,10 @@ m.isUserConnected = function(username,callback){
 }
 
 m.loginUser = function(username,callback){
-	var md = this;
-	this.setCallback('loginUserResponse',function(data){
-										callback(data);
-										md.binarySocket.send("file",{'soMuchHacksWeNeedBinarySocketClientAssociatedWithClient' : true});
-									});
-	this.socket.emit('loginUser',{'username' : username});
+	var md = this;		
+	this.socket.emit('loginUser',{'username' : username});	
+	this.setCallback('loginUserResponse',callback);
+	setTimeout(function() {md.binarySocket.send("file",{'shw' : true})}, 400);
 }
 
 m.logoutUser = function(username,callback){		
