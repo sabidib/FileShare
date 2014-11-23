@@ -124,11 +124,11 @@ v.showUsernameAlreadyBeingUsed = function(){
 }
 
 
-v.showAvailableFilesToStream = function(data){
-	if (data) {	
+v.showAvailableFilesToStream = function(data){	
+	if (Object.keys(data).length > 0) {	
 		htmlString = "<table><thead><th>Filename</th><th>Share Group</th><th>Download</th><th>Stream</th></thead><tbody>";	
 		$.each(data, function(i, f) {		
-			htmlString += "<tr><td>" + f.name + "<progress id='progress-bar' data-file-id='"+f.id+"' max='100' value='0' style='display:none;'></progress>"
+			htmlString += "<tr><td>" + f.name + "<br><progress id='progress-bar' data-file-id='"+f.id+"' max='100' value='0' style='display:none;'></progress>"
 			htmlString += "</td><td>" + f.shareGroup.name +  "</td>";
 			htmlString += "<td><button class='download-button' name='" + f.name + "'data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>Download</button></td>";			
 			console.log(f);
