@@ -155,8 +155,7 @@ ctrl.addListeners = function(){
 										controller.files_currently_sharing.push({'file' : files[j] , "file_id" : data[i].id})
 									}
 								};
-							};
-
+							};							
 							view.showFilesCurrentlyBeingShared(data);
 						});
 					})
@@ -175,14 +174,16 @@ ctrl.addListeners = function(){
 		});				
 	});
 
+	$('body').on('click',".stream-button",function(e){				
+		var share_group_id = $(this).attr('data-share-group-id');
+		var req = new StreamRequest(file_id);
+		controller.model.getStream({'request' : req , 'share_group_id' : share_group_id} ,function(data){
+			var stream = new Stream(data.source,data.destination,data.file_id);
+			controller.startStreaming(stream);
+		});
+	});
 
-	$('#shared-files').bind("DOMSubtreeModified", function(e) {		
-		$('html, body').animate({
-        	scrollTop: $("#shared-files").offset().top
-    	}, 2000);
-	})
-
-	$('body').on('click',"li.streamableFile",function(e){
+	$('body').on('click',".download-button",function(e){
 		var file_id = $(this).attr('data-file-id');
 		var share_group_id = $(this).attr('data-share-group-id');
 		var req = new StreamRequest(file_id);

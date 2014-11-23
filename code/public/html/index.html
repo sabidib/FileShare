@@ -21,6 +21,8 @@
         <script src="/js/View.js"></script>
         <script src="/js/FileBrowser.js"></script>
         <script src="/js/FileSelectionModal.js"></script>
+        <script src="/js/Stream.js"></script>
+        <script src="/js/StreamRequest.js"></script>
         <script src="/js/Controller.js"></script>
         <script src="/js/main.js"></script>
     </head>
@@ -106,35 +108,13 @@
 
                     <div class="container">
                         <div class="row">
-                            <div class="col-lg-3 text-center">
+                            <div class="col-lg-12 text-center">
                                 <h2>You are sharing:</h2>
                                 <div id="shared-files">
                                     
 
                                 </div>
                             </div>
-                            <div class="col-lg-2 text-center" id='shareGroupCreateDiv'>
-                            <h3>Create a share group</h3>
-                                <input type="text" class="form-control" id="shareGroupNameToCreate" placeholder="Enter a share group name to create it!">
-                                <button type="button" id="createShareGroup" class="btn btn-primary">
-                                    Create Share Group
-                                </button>
-                            </div>
-
-                            <div class="col-lg-2 text-center">
-                                <h3>Share groups you're part of:</h3>
-                                <div id="shareGroupList">
-                                    
-
-                                </div>
-                            </div>
-
-                            <div class="col-lg-2 text-center">
-                                <h3>Join a share group</h3>
-                                    <button type="button" id="shareGroupJoin">Open a share group</button>
-                            </div>
-
-
                         </div>
                         <!-- /.row -->
                     </div>
@@ -144,7 +124,7 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-lg-12 text-center">
-                                <h2>You can stream:</h2>
+                                <h2>You can download or stream:</h2>
                                 <div id="streamable-files">
                                     
 
