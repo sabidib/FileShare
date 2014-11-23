@@ -25,35 +25,26 @@ var Controller = function Controller(hostname,port){
 	this.fileBrowser = new FileBrowser(this.model,this.view);
 	this.files_currently_sharing = [];
 		this.binarySocket.on('stream',function(stream,meta){
-		console.log('receiving stream!!!');
+		console.log('receiving stream!!!');		
+		$('#progress-bar').show();
 		// Buffer for parts
           var parts = [];
           // Got new data
+          var tx = 0;
           stream.on('data', function(data){            
-            parts.push(data);
+            parts.push(data);                 
+            tx += data.byteLength / meta.size;           	
+            $('#progress-bar').val(Math.round(tx*100));            
           });
 
-          stream.on('end', function(){
+          stream.on('end', function(){          		
 	            $("#audioFile").trigger('stop');
 	            $("#videoFile").trigger('stop');
-
+	            $('#progress-bar').hide();
 	            // Display new data in browser!
 	           var url = (window.URL || window.webkitURL).createObjectURL(new Blob(parts));
-	            if(meta.type == "audio/mp3") {
-	              $("#audioFileNameHolder").text(meta.name);
-	              $("#audioFile").attr("src",url);
-	              $("#audioFile").attr("type",'audio/mp3')
-	              $("#audioFile").trigger('play');
-	            } else if(meta.type == "video/mp4") {
-	              $("#videoFileNameHolder").text(meta.name);
-	              $("#videoFile").attr("src",url);
-	              $("#videoFile").attr("type",'video/mpeg')
-	              $("#videoFile").trigger('play');
-	            } else if(meta.type.indexOf("image/") > -1){
-	              $("#imageFile").attr("src",url);
-	            } else {
-
-	            	var saveData = (function () {
+	           if (meta.download == true) {
+	           		var saveData = (function () {
 					    var a = document.createElement("a");
 					    document.body.appendChild(a);
 					    a.style = "display: none";
@@ -65,9 +56,23 @@ var Controller = function Controller(hostname,port){
 					        window.URL.revokeObjectURL(url);
 					    };
 					}());
-
 	            	saveData(new Blob(parts),meta.name);
-	            }
+	           }
+	           else {
+		            if(meta.type == "audio/mp3") {
+		              $("#audioFileNameHolder").text(meta.name);
+		              $("#audioFile").attr("src",url);
+		              $("#audioFile").attr("type",'audio/mp3')
+		              $("#audioFile").trigger('play');
+		            } else if(meta.type == "video/mp4") {
+		              $("#videoFileNameHolder").text(meta.name);
+		              $("#videoFile").attr("src",url);
+		              $("#videoFile").attr("type",'video/mpeg')
+		              $("#videoFile").trigger('play');
+		            } else if(meta.type.indexOf("image/") > -1){
+		              $("#imageFile").attr("src",url);
+		            }
+	        	}
 				//this.binarySocket.removeAllListeners('stream');
 		});
 
@@ -212,7 +217,7 @@ ctrl.addListeners = function(){
 		var share_group_id = $(this).attr('data-share-group-id');
 		var req = new StreamRequest(file_id);
 		controller.model.getStream({'request' : req , 'share_group_id' : share_group_id} ,function(data){
-			var stream = new Stream(data.source,data.destination,data.file_id);
+			var stream = new Stream(data.source,data.destination,data.file_id, true);
 			controller.startStreaming(stream);
 		});
 	});
@@ -228,6 +233,21 @@ ctrl.addListeners = function(){
 				} else {
 					alert("Logout failed.");
 				}				
+		});
+	});
+
+
+	$('body').on('click', '.edit-file-button', function(e) {		
+		e.preventDefault();								
+		var fileID = $(this).attr('data-file-id');		
+		controller.model.getShareGroupsForFile({'id':fileID}, function(data) {						
+			controller.fileSelectionModal.editFileShareGroups(data, function(groups){
+				controller.model.updateFileWithShareGroup({'id':fileID, 'shareGroups':groups['shareGroups']}, function() {
+					controller.model.getFilesFromUser(localStorage.getItem('username'), function(files) {
+						view.showFilesCurrentlyBeingShared(files);					
+					});
+				});								
+			});
 		});
 	});
 }
@@ -266,7 +286,7 @@ ctrl.setSocketIOListeners = function(){
 		for (var i = controller.files_currently_sharing.length - 1; i >= 0; i--) {
 			if(controller.files_currently_sharing[i]['file_id']== data.file_id){
 				var fileObject = controller.files_currently_sharing[i]['file']; 
-				controller.binarySocket.send(fileObject,{name: fileObject.name, size: fileObject.size, type:fileObject.type ,'destination':data.destination , "file_id" : data.file_id});
+				controller.binarySocket.send(fileObject,{name: fileObject.name, size: fileObject.size, type:fileObject.type ,'destination':data.destination , "file_id" : data.file_id, "download": data.download});
 				break;
 			}
 		};

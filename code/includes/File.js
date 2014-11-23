@@ -9,13 +9,13 @@ var ShareGroup = require('./ShareGroup.js');
  * @param {string} location The path of the folder.
  * @param {string} fileType The file type of this file.
  * @param {Client} Client The client that has this file.
- */
+ */ 
 var File = function File(name, fileType, client, shareGroup) {
 	//NetworkFileSystemNode.call(this, name);	
 	this.utils = new Utilities();
 	this.fileType = fileType;
 	this.client = client;
-	this.id = this.utils.generateRandomKey();
+	this.id = require('crypto').createHash('md5').update(name).digest("hex");
 	this.name = name;
 
 	client.addFile(this);

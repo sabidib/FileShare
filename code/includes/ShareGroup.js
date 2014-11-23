@@ -28,6 +28,10 @@ ShareGroup.prototype.getShareGroupName = function(){
 	return this.name;
 }
 
+ShareGroup.prototype.removeFile = function(file){
+	delete this.files[file.getFileID()];
+}
+
 ShareGroup.prototype.addFile = function(file){
 	if(this.files[file.getFileID()] == undefined){
 		this.files[file.getFileID()] = file;

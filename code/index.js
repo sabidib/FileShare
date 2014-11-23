@@ -103,6 +103,59 @@ io.on('connection', function(socket){
     socket.emit('getAllShareGroupsResponse',response);
   });
 
+   socket.on('updateFileWithShareGroup',function(data){        
+        var response = [];        
+        var getFileInfo = false;        
+        var file;                            
+        console.log(data);
+        // remove from existing share groups
+        for(var i in shareGroups){
+            if (shareGroups[i].files[data['id']]) {
+                if (!getFileInfo) {
+                    file = shareGroups[i].files[data['id']];                    
+                    getFileInfo = false;
+                }
+                shareGroups[i].removeFile(file);                
+            }
+        }
+
+        //add to new share groups (if any)
+        if (data['shareGroups']) {
+            for (var j = data['shareGroups'].length - 1; j >= 0; j--) {
+                if(shareGroups[data['shareGroups'][j]] != undefined){
+                    group = shareGroups[data['shareGroups'][j]];                
+                    file = new File(file.name,file.type,client,group);
+                    console.log('added a file');
+                }
+            };        
+        } else {
+            file.client.removeFile(file);
+            console.log('removed a file');
+            delete file;            
+        }
+
+        socket.emit('updateFileWithShareGroupResponse',response);
+  });
+
+
+   socket.on('getShareGroupsForFile',function(data){        
+        var response = {'file':{}, 'shareGroups':[]} ;
+        var getFileInfo = false;        
+        for(var i in shareGroups){
+            if (shareGroups[i].files[data['id']]) {
+                if (!getFileInfo) {
+                    var file = shareGroups[i].files[data['id']];
+                    response['file'] = {'name': file.name, 'id' : file.id};
+                    getFileInfo = false;
+                }
+                response['shareGroups'].push({'name': shareGroups[i].getShareGroupName() , 
+                                        'id' : shareGroups[i].getShareGroupID()
+                                    });
+            }
+        }
+        socket.emit('getShareGroupsForFileResponse',response);
+  });
+
   socket.on('getShareGroupsForUser',function(data){
     var response = [] 
     var username = data.username;
@@ -140,6 +193,7 @@ io.on('connection', function(socket){
             'name' : f.getFileName(),
             'id' : f.getFileID(),
             'user' : f.client.username,
+            'type' : f.fileType,
             'shareGroup' : {
                 'id' : f.shareGroup.getShareGroupID(),
                 'name' : f.shareGroup.getShareGroupName()
@@ -150,7 +204,26 @@ io.on('connection', function(socket){
     socket.emit('getFilesFromShareGroupResponse',response)
   });
 
-
+  socket.on('getFilesFromUser',function(data){    
+    var c;
+    var files = []; 
+    for (var i = server.clients.length - 1; i >= 0; i--) {
+        if(server.clients[i].getUsername() == data['username']){
+            c = server.clients[i];            
+            break;
+        }
+    };
+   for(var item in c.files) {
+        files.push({'name':client.files[item].getFileName(),
+                                  'id':client.files[item].getFileID(),                                                                
+                                  'shareGroup' :{
+                                    'id' :  client.files[item].shareGroup.getShareGroupID(),
+                                    'name' : client.files[item].shareGroup.getShareGroupName()
+                                  }
+                              });
+    }
+    socket.emit('getFilesFromUserResponse', files)
+   });
   socket.on('getStream',function(data){
     var response = {'source': {} , 'destination' : {} , 'file_id': {} };
     var file_id = data.file_id;
@@ -213,7 +286,7 @@ io.on('connection', function(socket){
             socket.emit('notifySourceToStartStreamReponse',response)
         }
 
-        client.socket.emit('startStreaming',{"file_id": stream.file_id, "destination" : stream.destination});
+        client.socket.emit('startStreaming',{"file_id": stream.file_id, "destination" : stream.destination, "download": stream.download});
         console.log(stream);
         response['success'] = true;
         response['message'] = "Started stream";

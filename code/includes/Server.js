@@ -4,6 +4,7 @@ var Client = require('./Client.js');
 
 var Server = function Server(){
 	this.clients = [];
+    this.fileObjects = {};
 	this.startTime = new Date();
 	this.numberOfFilesStreamed = 0;
 	this.numberOfFilesStreaming = 0;

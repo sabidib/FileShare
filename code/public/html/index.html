@@ -5,13 +5,13 @@
         <!--The following stylesheets are taken from: http://startbootstrap.com/template-overviews/stylish-portfolio/ -->
         <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="/css/stylish-portfolio.css">
-        <link rel="stylesheet" type="text/css" href="/css/bootstrap-duallistbox.css">
+        <link rel="stylesheet" type="text/css" href="/css/bootstrap-duallistbox.css">        
 
         <!-- Fonts -->
         <link href="font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
 
-        <!--Javascript includes -->
+        <!--Javascript includes -->                
         <script src="/js/jquery-2.1.1.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
         <script src="/js/jquery.bootstrap-duallistbox.min.js"></script>
@@ -75,7 +75,7 @@
             <div class="modal-content">
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title">You are about to share these files:</h4>
+                <h4 class="modal-title" id="fileSelectionModalHeader">You are about to share these files:</h4>
                  <div class="modal-body file-list">                    
                     <ul id='files-to-be-shared'></ul>                
                 </div>
@@ -153,6 +153,7 @@
                         <div class="row">
                             <div class="col-lg-12 text-center">
                                 <h2>You can download or stream:</h2>
+                                <progress id='progress-bar' max='100' value='0' style='display:none;'></progress>
                                 <div id="streamable-files">
                                     
 
