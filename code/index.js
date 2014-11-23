@@ -274,7 +274,7 @@ binaryServer.on('connection', function(c){
       // Incoming stream from browser
   c.on('stream',function(stream,meta){
     // Supa hacks
-    if(meta['soMuchHacksWeNeedBinarySocketClientAssociatedWithClient'] != undefined){
+    if(meta['shw'] != undefined){
         client.binarySocket = c;
         console.log("BIANRUY SOCKET");
     } else {

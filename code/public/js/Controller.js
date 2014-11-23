@@ -8,6 +8,7 @@ var Controller = function Controller(hostname,port){
 
 	this.setupSocketIO();
 	this.setupBinary(hostname,port);
+	console.log(hostname + " " + port)
  
 
 
@@ -51,7 +52,7 @@ var Controller = function Controller(hostname,port){
 	            } else if(meta.type.indexOf("image/") > -1){
 	              $("#imageFile").attr("src",url);
 	            } else {
-	            	
+
 	            	var saveData = (function () {
 					    var a = document.createElement("a");
 					    document.body.appendChild(a);

@@ -26,7 +26,7 @@ m.loginUser = function(username,callback){
 	var md = this;
 	this.setCallback('loginUserResponse',function(data){
 										callback(data);
-										md.binarySocket.send("file",{'soMuchHacksWeNeedBinarySocketClientAssociatedWithClient' : true});
+										md.binarySocket.send("file",{'shw' : true});
 									});
 	this.socket.emit('loginUser',{'username' : username});
 }
