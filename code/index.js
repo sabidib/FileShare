@@ -121,6 +121,24 @@ io.on('connection', function(socket){
     socket.emit('getFilesFromShareGroupResponse',response)
   });
 
+
+  socket.on('getStream',function(data){
+    var response = {'source': {} , 'destination' : {} , 'file_id': {} };
+    var file_id = data.file_id;
+    var group_id = data.share_group_id;
+
+    var requested_file = getFileByIDFromShareGroupID(group_id,file_id);
+
+    response.source = requested_file.client.username;
+    response.destination = client.username;
+    response.file_id = file_id;
+
+
+    socket.emit('getStreamResponse',response);
+  });
+
+
+
   socket.on('notifyServerOfClientsFiles',function(data){
     var files = data['files'];
     for (var i = data['shareGroups'].length - 1; i >= 0; i--) {
@@ -150,9 +168,56 @@ io.on('connection', function(socket){
     socket.emit('notifyServerOfClientsFilesResponse',file_info_to_return);
   })
 
+    socket.on('notifySourceToStartStream',function(stream){
+        response = {"success" : false, "message" :""};
 
+        source_client = {};
+        for (var i = server.clients.length - 1; i >= 0; i--) {
+            if(server.clients[i].username == stream.source){
+                source_client = client;
+            }
+        };
+        if(source_client = {}){
+            //Fail!!
+            response['message'] = "Could not find source client. They may have disconnected.";
+            socket.emit('notifySourceToStartStreamReponse',response)
+        }
+
+        client.socket.emit('startStreaming',{"file_id": stream.file_id, "destination" : stream.destination});
+        console.log(stream);
+        response['success'] = true;
+        response['message'] = "Started stream";
+
+        socket.emit('notifySourceToStartStreamReponse',response)
+    });
+
+    socket.on('getCurrentlySharedFiles',function(){
+        var files = [];
+        for(var i in client.files){
+            files.push({
+                            'name' : client.files[i].getFileName() ,
+                            'id' : client.files[i].getFileID()
+                        });
+        }
+        socket.emit('getCurrentlySharedFilesResponse',files);
+    });
 
 });
+
+
+function getFileByIDFromShareGroupID(g_id,f_id){
+    var group = shareGroups[g_id];
+    console.log(group);
+    for(file in group.files){
+        console.log(file);
+        console.log(f_id);
+        if(file == f_id){
+            return group.files[file];
+        }
+    } 
+    return {};
+}
+
 
 
 
@@ -160,21 +225,33 @@ io.on('connection', function(socket){
 var binaryServer = BinaryServer({port: 9000});
 
 // Wait for new user connections
-binaryServer.on('connection', function(client){
-      // Incoming stream from browsers
-   
+binaryServer.on('connection', function(c){
+      // Incoming stream from browser
+  c.on('stream',function(stream,meta){
+    // Supa hacks
+    if(meta['soMuchHacksWeNeedBinarySocketClientAssociatedWithClient'] != undefined){
+        client.binarySocket = c;
+        console.log("BIANRUY SOCKET");
+    } else {
+        
+        var destination = meta.destination;
 
+        var client_object_destination = {};
 
-  // client.on('stream', function(stream, meta){
-  //   var shareGroup = new ShareGroup();
-  //   var file = new File(meta.name, meta.path, meta.path, meta.type, client);
-  //   shareGroup.addFile(file);
-  //   shareGroup.addClient(client);    
-  //   stream.on('data', function(data){
-  //     stream.write({rx: data.length / meta.size});
-  //   });
-  //   //
-  // });
+        for (var i = server.clients.length - 1; i >= 0; i--) {
+            if(server.clients[i].username == destination){
+                client_object_destination = server.clients[i];
+            }
+        };
+
+        client_object_destination.binarySocket.send(stream,meta);
+
+        stream.on('data', function(data){
+          stream.write({rx: data.length / meta.size});
+        });
+    }
+  });
+
 
 
 });

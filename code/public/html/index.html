@@ -21,6 +21,8 @@
         <script src="/js/View.js"></script>
         <script src="/js/FileBrowser.js"></script>
         <script src="/js/FileSelectionModal.js"></script>
+        <script src="/js/Stream.js"></script>
+        <script src="/js/StreamRequest.js"></script>
         <script src="/js/Controller.js"></script>
         <script src="/js/main.js"></script>
     </head>
@@ -126,7 +128,25 @@
 
 
                 </div>
-                <div role="tabpanel" class="tab-pane" id="streaming"></div>
+                <div role="tabpanel" class="tab-pane" id="streaming">
+                        
+                    <div style="border:1px;">
+                    Current audio file:  <span id="audioFileNameHolder"></span> <br>
+                      <audio controls id="audioFile">
+                      </audio>
+                    </div>
+                    <br>
+
+                    Current video file : <span id="videoFileNameHolder"></span> <br>
+                    <div style="border:1px;">
+                      <video id="videoFile" controls>
+                      </video>
+                    </div>
+
+                    <img id="imageFile"/>
+
+
+                </div>
             </div>
 
             <!-- /.container -->

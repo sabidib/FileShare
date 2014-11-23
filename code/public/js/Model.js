@@ -23,7 +23,11 @@ m.isUserConnected = function(username,callback){
 }
 
 m.loginUser = function(username,callback){
-	this.setCallback('loginUserResponse',callback);
+	var md = this;
+	this.setCallback('loginUserResponse',function(data){
+										callback(data);
+										md.binarySocket.send("file",{'soMuchHacksWeNeedBinarySocketClientAssociatedWithClient' : true});
+									});
 	this.socket.emit('loginUser',{'username' : username});
 }
 m.getUsersOnline = function(callback){
@@ -48,3 +52,20 @@ m.getFilesFromShareGroup = function(data,callback){
 
 }
 
+m.getStream = function(data,callback){
+	this.setCallback('getStreamResponse',callback);
+	this.socket.emit('getStream',{'file_id' : data.request.file_id , 'share_group_id' : data.share_group_id});	
+}
+
+
+m.notifySourceToStartStream = function(stream,callback){
+	this.setCallback('notifySourceToStartStreamResponse',callback);
+	this.socket.emit('notifySourceToStartStream',stream);	
+}
+
+
+m.getCurrentlySharedFiles = function(callback){
+	this.setCallback('getCurrentlySharedFilesResponse',callback);
+	this.socket.emit('getCurrentlySharedFiles');	
+
+}

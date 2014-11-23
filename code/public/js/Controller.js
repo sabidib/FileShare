@@ -8,14 +8,19 @@ var Controller = function Controller(hostname,port){
 
 	this.setupSocketIO();
 	this.setupBinary(hostname,port);
+ 
+
 
 	model = new Model(this.socket,this.binarySocket);
-	view = new View();	
+	view = new View();
 
-	fileSelectionModal = new FileSelectionModal(model,view);
+	this.model =model;
+	this.view = view;
 
-	fileBrowser = new FileBrowser(model,view);
+	fileSelectionModal = new FileSelectionModal(this.model,this.view);
 
+	fileBrowser = new FileBrowser(this.model,this.view);
+	this.files_currently_sharing = [];
 	//view.showLoginPage()
 	this.addListeners();
 }
@@ -25,9 +30,7 @@ ctrl = Controller.prototype;
 
 ctrl.setupSocketIO = function(){
     this.socket = io();    
-    this.socket.on('omg',function(data){
-    	console.log('omg!' + data);
-    })
+    this.setSocketIOListeners();
 }
 
 ctrl.setupBinary = function(hostname,port){
@@ -51,10 +54,10 @@ ctrl.addListeners = function(){
 			view.showEmptyUsernameLoginAttempt();
 			return;
 		} 
-		model.isUserConnected(username,function(data){
+		controller.model.isUserConnected(username,function(data){
 			console.log(data);
 			if(!data['isUserConnected']){
-				model.loginUser(username,function(data){
+				controller.model.loginUser(username,function(data){
 					if(data['success']){
 						view.showMainPage(username);				
 					} else {
@@ -76,13 +79,44 @@ ctrl.addListeners = function(){
 		$('#add-files-dialog').click();
 		$('#add-files-dialog').change(function() {
 			var files = $('#add-files-dialog')[0].files;
-			fileSelectionModal.getShareGroupsToShareWith(files,function(data){
-				toSend = {'files' : files, 'shareGroups' : data['shareGroups']};
-				model.notifyServerOfClientsFiles(toSend,function(data){
-					console.log(data);
-					view.showFilesCurrentlyBeingShared(data);
-				});
-			})
+			var currently_shared_files = controller.model.getCurrentlySharedFiles(function(data){
+				named_same = false;
+				for (var i = data.length - 1; i >= 0; i--) {
+					for (var j = files.length - 1; j >= 0; j--) {
+						if(files[j].name == data[i].name){
+							console.log('You can only share files that have different names!');
+							named_same =true;
+						}
+					};
+				};
+
+				if(!named_same){
+					fileSelectionModal.getShareGroupsToShareWith(files,function(data){
+						toSend = {'files' : files, 'shareGroups' : data['shareGroups']};
+						controller.model.notifyServerOfClientsFiles(toSend,function(data){
+							//We match files we're sharing by name and associate them with the server ID
+							for (var i = data.length - 1; i >= 0; i--) {
+								for (var j = files.length - 1; j >= 0; j--) {
+									if(files[j].name == data[i].name){
+										controller.files_currently_sharing.push({'file' : files[j] , "file_id" : data[i].id})
+									}
+								};
+							};
+
+							view.showFilesCurrentlyBeingShared(data);
+						});
+					})
+				} else {
+					////
+					///
+					///
+					///Alert the user that they tried to share files with the same name
+					///
+					///
+					///
+				}
+			});
+
 
 		});				
 	});
@@ -93,45 +127,86 @@ ctrl.addListeners = function(){
         	scrollTop: $("#shared-files").offset().top
     	}, 2000);
 	})
-	
-	$('body').on('click',"li .streamableFile",function(e){
-		
+
+	$('body').on('click',"li.streamableFile",function(e){
+		var file_id = $(this).attr('data-file-id');
+		var share_group_id = $(this).attr('data-share-group-id');
+		var req = new StreamRequest(file_id);
+		controller.model.getStream({'request' : req , 'share_group_id' : share_group_id} ,function(data){
+			var stream = new Stream(data.source,data.destination,data.file_id);
+			controller.startStreaming(stream);
+		});
 	});
 
 
 }
 
 
+ctrl.startStreaming = function(streamObject){
+	//Prepare the binary js listeners to receive the data
+	
+	this.binarySocket.on('stream',function(stream,meta){
+		console.log('receiving stream!!!');
+		// Buffer for parts
+          var parts = [];
+          // Got new data
+          stream.on('data', function(data){            
+            parts.push(data);
+          });
+
+          stream.on('end', function(){
+	            $("#audioFile").trigger('stop');
+	            $("#videoFile").trigger('stop');
+
+	            // Display new data in browser!
+	           var url = (window.URL || window.webkitURL).createObjectURL(new Blob(parts));
+	            if(meta.type == "audio/mp3") {
+	              $("#audioFileNameHolder").text(meta.name);
+	              $("#audioFile").attr("src",url);
+	              $("#audioFile").attr("type",'audio/mp3')
+	              $("#audioFile").trigger('play');
+	            } else if(meta.type == "video/mp4") {
+	              $("#videoFileNameHolder").text(meta.name);
+	              $("#videoFile").attr("src",url);
+	              $("#videoFile").attr("type",'video/mpeg')
+	              $("#videoFile").trigger('play');
+	            } else if(meta.type.indexOf("image/") > -1){
+	              $("#imageFile").attr("src",url);
+	            } else {
+
+	              $('<div align="center"></div>').append($('<a></a>').text(meta.name).prop('download',meta.name).prop('href', url)).prependTo('body');
+	            }
+				this.binarySocket.removeAllListeners('stream');
+		});
+
+	});
+
+	this.model.notifySourceToStartStream(streamObject,function(data){
+
+	});
+}
+
 
 
 ctrl.handleSendingFile = function(){
-    var box = $('#box');
-    box.on('dragenter', doNothing);
-    box.on('dragover', doNothing);
-    box.text('Drag files here');
-    box.on('drop', function(e){
-        e.originalEvent.preventDefault();                    
-        var file = e.originalEvent.dataTransfer.files[0];                    
-        // Add to list of uploaded files
-        $('<div align="center"></div>').append($('<a></a>').text(file.name).prop('href', '/'+file.name)).appendTo('body');
-            
-            // `client.send` is a helper function that creates a stream with the 
-            // given metadata, and then chunks up and streams the data.
-            var filePath = "/"; // need to somehow get file path
-            var stream = client.send(file, {name: file.name, size: file.size, type:file.type, path:filePath});
-            
-            // Print progress
-            var tx = 0;
-            stream.on('data', function(data){
-            $('#progress').text(Math.round(tx+=data.rx*100) + '% complete');
-         });
-      }); 
 }
 
 
 ctrl.setupBinaryListeners = function(){
 	this.binarySocket.on('open',this.handleSendingFile)
 	this.binarySocket.on('stream',this.receiveStreamFromServer)
+}
+
+ctrl.setSocketIOListeners = function(){
+	this.socket.on('startStreaming',function(data){
+		for (var i = controller.files_currently_sharing.length - 1; i >= 0; i--) {
+			if(controller.files_currently_sharing[i]['file_id']== data.file_id){
+				var fileObject = controller.files_currently_sharing[i]['file']; 
+				controller.binarySocket.send(fileObject,{name: fileObject.name, size: fileObject.size, type:fileObject.type ,'destination':data.destination , "file_id" : data.file_id});
+				break;
+			}
+		};
+	});
 }
 
 
