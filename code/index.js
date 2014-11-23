@@ -61,12 +61,26 @@ io.on('connection', function(socket){
 
 
   socket.on('loginUser',function(data){
-    response = {'success' : false}
+    response = {'success' : false};
     client = new Client(data['username'],server,socket,session);
     client.setStatusToLoggedIn();
-    response = {'success' : true}
+    response = {'success' : true};
     console.log(data['username'] + " has logged in successfully!");
     socket.emit('loginUserResponse',response);
+  });
+
+  socket.on('logoutUser',function(data){
+    response = {'success' : false};    
+    console.log("HERE");
+    for (var i = server.clients.length - 1; i >= 0; i--) {
+        if(server.clients[i].getUsername() == data['username']){
+          server.removeClient(server.clients[i]);
+          response = {'success' : true};                    
+          console.log(data['username'] + " has logged out successfully!"); 
+          break;
+       }
+    };    
+    socket.emit('logoutUserResponse',response);
   });
 
   socket.on('getUsersOnline',function(data){

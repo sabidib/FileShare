@@ -22,6 +22,9 @@
         background: #E3E3CC;
     }
 
+#loginContainer {
+	display:none;
+}
  h1, h2, h3, h4, h5, h6 {
  	color: #666f77;
 	font-weight: 300;

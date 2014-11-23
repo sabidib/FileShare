@@ -33,7 +33,7 @@ Server.prototype.addClient = function(client) {
 Server.prototype.removeClient = function(client){
     for(var  i=0; i < this.clients.length;i++){
     	if(this.clients[i].getUsername() == client.getUsername()){
-    		this.client.setServer({});
+    		this.clients[i].setServer({});
     		this.clients.splice(i,1);
     		return true;
     	}

@@ -68,6 +68,10 @@ Client.prototype.setStatusToLoggedIn = function(){
 	this.session.set('loggedIn',true);
 }
 
+Client.prototype.setStatusToLoggedOut = function(){
+	this.session.set('loggedIn',false);
+}
+
 
 
 
