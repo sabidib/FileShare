@@ -184,7 +184,8 @@ ctrl.addListeners = function(){
 		});	
 	});
 
-	$('body').on('click',".stream-button",function(e){				
+	$('body').on('click',".stream-button",function(e){	
+		var file_id = $(this).attr('data-file-id');			
 		var share_group_id = $(this).attr('data-share-group-id');
 		var req = new StreamRequest(file_id);
 		controller.model.getStream({'request' : req , 'share_group_id' : share_group_id} ,function(data){
