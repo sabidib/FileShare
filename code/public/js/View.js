@@ -61,7 +61,7 @@ v.updateCurrentShareGroupTable = function(groups){
 v.showShareGroupsOnlineToChooseFrom = function(shareGroup, selectedShareGroups){
 	$('#shareGroupChoosingModal').modal('show');	
 	var list = $('#shareGroupDualListBox').bootstrapDualListbox();	
-	selected = {};
+	selected = {};	
 	if (selectedShareGroups) {
 		for (var i = selectedShareGroups.length - 1; i >= 0; i--) {
 			selected[selectedShareGroups[i]['id']] = true;
@@ -130,7 +130,13 @@ v.showAvailableFilesToStream = function(data){
 		$.each(data, function(i, f) {		
 			htmlString += "<tr><td>" + f.name + "</td><td>" + f.shareGroup.name +  "</td>";
 			htmlString += "<td><button class='download-button' name='" + f.name + "'data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>Download</button></td>";			
-			htmlString += "<td><button class='stream-button' data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>Stream</button></td></tr>";
+			console.log(f);
+			if (f.type == 'audio/mp3' || f.type == 'video/mp4') {
+				htmlString += "<td><button class='stream-button' data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>Stream</button></td></tr>";
+			}			
+			else {
+				htmlString += "<td></td></tr>"
+			}
 		});
 		htmlString += "</tbody></table>";	
 	}
@@ -141,12 +147,14 @@ v.showAvailableFilesToStream = function(data){
 }
 
 v.showFilesCurrentlyBeingShared = function(data) {	
-	if (data) {	
+	htmlString = "";
+	console.log(data);
+	if (data.length > 0) {	
 		var files = {};
 		var fileIDs = {};		
 		var file_names = [];
-		htmlString = "<table><thead><th>Filename</th><th>Share Groups</th><th>Edit</th></thead><tbody>";	
-		$.each(data, function(i, f) {		
+		htmlString += "<table><thead><th>Filename</th><th>Share Groups</th><th>Edit</th></thead><tbody>";	
+		$.each(data, function(i, f) {					
 			if (!files[f.name]) {
 				files[f.name] = [];				
 				file_names.push(f.name);				
@@ -163,7 +171,7 @@ v.showFilesCurrentlyBeingShared = function(data) {
 		htmlString += "</tbody></table>";	
 	}
 	else {
-		htmlString = "No files being shared at this moment."
+		htmlString += "No files being shared at this moment."
 	}
 	$('#shared-files').html(htmlString);
 };

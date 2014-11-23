@@ -107,6 +107,7 @@ io.on('connection', function(socket){
         var response = [];        
         var getFileInfo = false;        
         var file;                            
+        console.log(data);
         // remove from existing share groups
         for(var i in shareGroups){
             if (shareGroups[i].files[data['id']]) {
@@ -192,6 +193,7 @@ io.on('connection', function(socket){
             'name' : f.getFileName(),
             'id' : f.getFileID(),
             'user' : f.client.username,
+            'type' : f.fileType,
             'shareGroup' : {
                 'id' : f.shareGroup.getShareGroupID(),
                 'name' : f.shareGroup.getShareGroupName()
@@ -213,7 +215,7 @@ io.on('connection', function(socket){
     };
    for(var item in c.files) {
         files.push({'name':client.files[item].getFileName(),
-                                  'id':client.files[item].getFileID(),
+                                  'id':client.files[item].getFileID(),                                                                
                                   'shareGroup' :{
                                     'id' :  client.files[item].shareGroup.getShareGroupID(),
                                     'name' : client.files[item].shareGroup.getShareGroupName()
