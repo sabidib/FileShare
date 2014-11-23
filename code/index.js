@@ -70,8 +70,7 @@ io.on('connection', function(socket){
   });
 
   socket.on('logoutUser',function(data){
-    response = {'success' : false};    
-    console.log("HERE");
+    response = {'success' : false};        
     for (var i = server.clients.length - 1; i >= 0; i--) {
         if(server.clients[i].getUsername() == data['username']){
           server.removeClient(server.clients[i]);

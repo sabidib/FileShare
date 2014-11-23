@@ -99,23 +99,32 @@ v.showUsernameAlreadyBeingUsed = function(){
 
 
 v.showAvailableFilesToStream = function(data){
-
-	htmlString = "<div class='file-list'>";
-	htmlString += "<ul class='alt'>"
-	$.each(data, function(i, f) {		
-		htmlString += "<li class='streamableFile' data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>" + f.name + ", share group:" + f.shareGroup.name +  " from user : " + f.user +"</li>";
-	});
-	htmlString += "</ul></div>";	
+	if (data) {	
+		htmlString = "<table><thead><th>Filename</th><th>Share Group</th><th>Download</th><th>Stream</th></thead><tbody>";	
+		$.each(data, function(i, f) {		
+			htmlString += "<tr><td>" + f.name + "</td><td>" + f.shareGroup.name +  "</td>";
+			htmlString += "<td><button class='download-button' data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>Download</button></td>";			
+			htmlString += "<td><button class='stream-button' data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>Stream</button></td></tr>";
+		});
+		htmlString += "</tbody></table>";	
+	}
+	else {
+		htmlString = "No files can be downloaded or streamed this moment."
+	}	
 	$('#streamable-files').html(htmlString);
 }
 
 v.showFilesCurrentlyBeingShared = function(data) {	
-	htmlString = "<div class='file-list'>";
-	htmlString += "<ul class='alt'>"
-	$.each(data, function(i, f) {		
-		htmlString += "<li class='sharedFile' data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>" + f.name + ", share group:" + f.shareGroup.name +  "</li>";
-	});
-	htmlString += "</ul></div>";	
+	if (data) {	
+		htmlString = "<table><thead><th>Filename</th><th>Share Groups</th></thead><tbody>";	
+		$.each(data, function(i, f) {		
+			htmlString += "<tr class='sharedFile' data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'><td>" + f.name + "</td><td>" + f.shareGroup.name +  "</td></tr>";
+		});
+		htmlString += "</tbody></table>";	
+	}
+	else {
+		htmlString = "No files being shared at this moment."
+	}
 	$('#shared-files').html(htmlString);
 };
 
