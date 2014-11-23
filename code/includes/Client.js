@@ -17,7 +17,7 @@ var Client = function Client(username,server,socket,session){
 	this.session = session;
 	this.server.addClient(this);
 	this.addShareGroup(globalShareGroup);	
-	this.files = []
+	this.files = {}
 }
 
 
@@ -67,6 +67,7 @@ Client.prototype.addShareGroup = function(shareGroup) {
 Client.prototype.removeShareGroup = function(shareGroup){
 	for (var i = this.shareGroupsThatIAmIn.length - 1; i >= 0; i--) {
 		if(this.shareGroupsThatIAmIn[i].shareGroupID == shareGroup.shareGroupID){
+			console.log("removing share group" + this.shareGroupsThatIAmIn[i].name);
     		this.shareGroupsThatIAmIn.splice(i,1);
 			shareGroup.removeClient(this);
 			return true;

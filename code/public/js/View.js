@@ -125,8 +125,8 @@ v.showUsernameAlreadyBeingUsed = function(){
 
 
 v.showAvailableFilesToStream = function(data){
+	htmlString = ""
 	if (data) {	
-		htmlString = "<table><thead><th>Filename</th><th>Share Group</th><th>Download</th><th>Stream</th></thead><tbody>";	
 		$.each(data, function(i, f) {		
 			htmlString += "<tr><td>" + f.name + "<progress id='progress-bar' data-file-id='"+f.id+"' max='100' value='0' style='display:none;'></progress>"
 			htmlString += "</td><td>" + f.shareGroup.name +  "</td>";
@@ -139,12 +139,11 @@ v.showAvailableFilesToStream = function(data){
 				htmlString += "<td></td></tr>"
 			}
 		});
-		htmlString += "</tbody></table>";	
 	}
 	else {
 		htmlString = "No files can be downloaded or streamed this moment."
 	}	
-	$('#streamable-files').html(htmlString);
+	$('#streamable-files').append(htmlString);
 }
 
 v.showFilesCurrentlyBeingShared = function(data) {	

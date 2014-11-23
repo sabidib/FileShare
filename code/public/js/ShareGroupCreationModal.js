@@ -25,8 +25,8 @@ sgcm.addListeners = function(){
 					v.showMustAddUsernamesForCreateShareGroup();
 					return;
 				}
+				console.log("users to add to shareGroup " + shareName + " > "+ usernames)
 				modal.model.addUsersToShareGroup(usernames,data['id'],function(usersAdded){
-					console.log(usersAdded);
 					modal.tmpCallback({'users' : usersAdded , 'shareGroupID' : data['id'], 'shareGroupName' : shareName});
 					modal.clearModal();
 					modal.closeModal();

@@ -135,7 +135,13 @@ ctrl.addListeners = function(){
 
 	$('body').on('show.bs.tab','a[data-toggle="tab"]',function(e){
 		if($(e.target).attr('href') == "#browsing"){
-			controller.fileBrowser.showFilesFromShareGroup(0,100);
+			controller.model.getShareGroupsForUser(controller.current_username,function(data){
+				$("#streamable-files").html("");
+				for (var i = data.length - 1; i >= 0; i--) {
+					controller.fileBrowser.showFilesFromShareGroup(data[i].id,100);
+				};
+
+			});
 		} else if($(e.target).attr('href') == "#shareGroups"){
 			controller.updateSharingTab();
 		}
@@ -247,7 +253,7 @@ ctrl.addListeners = function(){
 		var fileID = $(this).attr('data-file-id');		
 		controller.model.getShareGroupsForFile({'id':fileID}, function(data) {						
 			controller.fileSelectionModal.editFileShareGroups(data, function(groups){
-				controller.model.updateFileWithShareGroup({'id':fileID, 'shareGroups':groups['shareGroups']}, function() {
+				controller.model.updateFileWithShareGroup({'id':fileID, 'shareGroups':groups['shareGroups'],'username' : controller.current_username}, function() {
 					controller.model.getFilesFromUser(localStorage.getItem('username'), function(files) {
 						view.showFilesCurrentlyBeingShared(files);					
 					});

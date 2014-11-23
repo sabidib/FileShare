@@ -48,7 +48,7 @@ File.prototype.setShareGroup = function(shareGroup) {
 
 File.prototype.deleteFile = function(){
 	this.shareGroup.removeFile(this);
-	client.removeFile(this);
+	this.client.removeFile(this);
 }
 
 
