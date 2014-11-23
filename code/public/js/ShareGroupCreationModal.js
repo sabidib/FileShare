@@ -21,6 +21,10 @@ sgcm.addListeners = function(){
 			};
 			modal.model.createShareGroup(shareName,function(data){
 				var usernames = $('#userDualListBox').val();
+				if(usernames == []){
+					v.showMustAddUsernamesForCreateShareGroup();
+					return;
+				}
 				modal.model.addUsersToShareGroup(usernames,data['id'],function(usersAdded){
 					console.log(usersAdded);
 					modal.tmpCallback({'users' : usersAdded , 'shareGroupID' : data['id'], 'shareGroupName' : shareName});

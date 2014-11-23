@@ -33,14 +33,22 @@ v.showFilesAboutToShare = function(files) {
 	};	
 }
 
+
+v.showMustAddUsernamesForCreateShareGroup = function(){
+	$('#userDualListBox').tooltip({'title':"You need to select at least 1 user!"});
+	$('#userDualListBox').tooltip('show')
+	setTimeout(function() {
+		$('#userDualListBox').tooltip('destroy')
+	}, 4000);
+}
+
+
 v.updateCurrentShareGroupTable = function(groups){
 	var list = $('#shareGroups #shareGroupList');
 	list.empty();
 	for (var i = groups.length - 1; i >= 0; i--) {
 		list.append("<li data-id-share-group-id='"+groups[i]['id']+"'>" + groups[i]['name'] + "</li>");
 	};	
-
-
 }
 
 v.showShareGroupsOnlineToChooseFrom = function(shareGroup){

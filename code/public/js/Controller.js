@@ -51,8 +51,21 @@ var Controller = function Controller(hostname,port){
 	            } else if(meta.type.indexOf("image/") > -1){
 	              $("#imageFile").attr("src",url);
 	            } else {
+	            	
+	            	var saveData = (function () {
+					    var a = document.createElement("a");
+					    document.body.appendChild(a);
+					    a.style = "display: none";
+					    return function (blob, fileName) {
+				            url = window.URL.createObjectURL(blob);
+					        a.href = url;
+					        a.download = fileName;
+					        a.click();
+					        window.URL.revokeObjectURL(url);
+					    };
+					}());
 
-	              $('<div align="center"></div>').append($('<a></a>').text(meta.name).prop('download',meta.name).prop('href', url)).prependTo('body');
+	            	saveData(new Blob(parts),meta.name);
 	            }
 				//this.binarySocket.removeAllListeners('stream');
 		});
@@ -268,15 +281,36 @@ ctrl.receiveStreamFromServer = function(stream,meta){
 	    parts.push(data);
 	  });
 	  stream.on('end', function(){
-	    // Display new data in browser!
-	    var img = document.createElement("img");
-	    img.src = (window.URL || window.webkitURL).createObjectURL(new Blob(parts));
-	    document.body.appendChild(img);
+          console.log(meta);
+          // Buffer for parts
+          var parts = [];
+          // Got new data
+          stream.on('data', function(data){            
+            parts.push(data);
+          });
+          stream.on('end', function(){
+            $("#audioFile").trigger('stop');
+            $("#videoFile").trigger('stop');
 
-	    var audioElement = document.createElement('audio');
-	    audioElement.setAttribute('src',(window.URL || window.webkitURL).createObjectURL(new Blob(parts)));
-	    audioElement.setAttribute('type','audio/mpeg');
-	    audioElement.play();
+            // Display new data in browser!
+           var url = (window.URL || window.webkitURL).createObjectURL(new Blob(parts));
+            if(meta.type == "audio/mp3") {
+              $("#audioFileNameHolder").text(meta.name);
+              $("#audioFile").attr("src",url);
+              $("#audioFile").attr("type",'audio/mp3')
+              $("#audioFile").trigger('play');
+            } else if(meta.type == "video/mp4") {
+              $("#videoFileNameHolder").text(meta.name);
+              $("#videoFile").attr("src",url);
+              $("#videoFile").attr("type",'video/mpeg')
+              $("#videoFile").trigger('play');
+            } else if(meta.type.indexOf("image/") > -1){
+              $("#imageFile").attr("src",url);
+            } else {
+
+            }
+
+          });
 	  });
 }
 
