@@ -32,7 +32,7 @@ m.loginUser = function(username,callback){
 }
 
 m.logoutUser = function(username,callback){		
-	this.setCallback('logoutUserResponse', function(data){ callback(data); });	
+	this.setCallback('logoutUserResponse', callback);	
 	this.socket.emit('logoutUser',{'username' : username});	
 }
 
@@ -45,6 +45,13 @@ m.getAllShareGroups = function(callback){
 	this.setCallback('getAllShareGroupsResponse',callback);
 	this.socket.emit('getAllShareGroups');	
 }
+
+m.getShareGroupsForUser = function(username,callback){
+	name = 'getShareGroupsForUser';
+	this.setCallback(name+'Response',callback);
+	this.socket.emit(name,{'username' : username});
+}
+
 
 m.notifyServerOfClientsFiles = function(data,callback){
 	this.setCallback('notifyServerOfClientsFilesResponse',callback);
@@ -75,3 +82,15 @@ m.getCurrentlySharedFiles = function(callback){
 	this.socket.emit('getCurrentlySharedFiles');	
 
 }
+
+m.createShareGroup = function(name,callback){
+	this.setCallback('createShareGroupResponse',callback);
+	this.socket.emit('createShareGroup',{'name': name});	
+}
+
+m.addUsersToShareGroup = function(usernames,shareGroupID,callback){
+	this.setCallback('addUsersToShareGroupResponse',callback);
+	this.socket.emit('addUsersToShareGroup',{'usernames' : usernames , 'shareGroupID' : shareGroupID});	
+
+}
+

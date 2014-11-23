@@ -87,7 +87,7 @@ io.on('connection', function(socket){
     //todo: make sure it's valid user that has been authenticated
     var response = {'users':[]} 
     for (var i = server.clients.length - 1; i >= 0; i--) {
-        response['users'].push(server.clients[i].getUsername());
+        response['users'].push({'username': server.clients[i].getUsername() });
     }
     socket.emit('getUsersOnlineResponse',response);
   });
@@ -104,10 +104,26 @@ io.on('connection', function(socket){
     socket.emit('getAllShareGroupsResponse',response);
   });
 
+  socket.on('getShareGroupsForUser',function(data){
+    var response = [] 
+    var username = data.username;
+        for (var i = server.clients.length - 1; i >= 0; i--) {
+            if(server.clients[i].username == username){
+                for (var j = server.clients[i].shareGroupsThatIAmIn.length - 1; j >= 0; j--) {
+                    var group = server.clients[i].shareGroupsThatIAmIn[j];
+                    response.push({'id' : group.getShareGroupID(),
+                                    'name' : group.getShareGroupName()
+                                });
+                };
+            }
+        };
+    socket.emit('getShareGroupsForUserResponse',response)
+  });
+
   socket.on('createShareGroup' ,function(data){
     var s = new ShareGroup(data['name']); 
     shareGroups[s.getShareGroupID()] = s;
-    socket.emit('createShareGroupResponse',{'sucess':true});
+    socket.emit('createShareGroupResponse',{'sucess':true, 'id' : s.getShareGroupID()});
   });
 
   socket.on('getFilesFromShareGroup',function(data){
@@ -155,8 +171,9 @@ io.on('connection', function(socket){
 
   socket.on('notifyServerOfClientsFiles',function(data){
     var files = data['files'];
+    console.log(data);
     for (var i = data['shareGroups'].length - 1; i >= 0; i--) {
-        client.addShareGroup(data['shareGroups'][i]);
+        client.addShareGroup(shareGroups[data['shareGroups'][i]]);
     };
 
     for (var i = files.length - 1; i >= 0; i--) {
@@ -216,6 +233,23 @@ io.on('connection', function(socket){
         socket.emit('getCurrentlySharedFilesResponse',files);
     });
 
+    socket.on('addUsersToShareGroup',function(data){
+        var group = shareGroups[data['shareGroupID']];
+        var users_added = [];
+        for (var i = data['usernames'].length - 1; i >= 0; i--) {
+            for (var j = server.clients.length - 1; j >= 0; j--) {
+                if(server.clients[j].username == data['usernames']){
+                    group.addClient(server.clients[j]);
+                    users_added.push({'username' : server.clients[j].username});
+                }
+            };
+        };
+
+        socket.emit('addUsersToShareGroupResponse',users_added);
+    });
+
+
+
 });
 
 
@@ -223,8 +257,6 @@ function getFileByIDFromShareGroupID(g_id,f_id){
     var group = shareGroups[g_id];
     console.log(group);
     for(file in group.files){
-        console.log(file);
-        console.log(f_id);
         if(file == f_id){
             return group.files[file];
         }

@@ -33,6 +33,16 @@ v.showFilesAboutToShare = function(files) {
 	};	
 }
 
+v.updateCurrentShareGroupTable = function(groups){
+	var list = $('#shareGroups #shareGroupList');
+	list.empty();
+	for (var i = groups.length - 1; i >= 0; i--) {
+		list.append("<li data-id-share-group-id='"+groups[i]['id']+"'>" + groups[i]['name'] + "</li>");
+	};	
+
+
+}
+
 v.showShareGroupsOnlineToChooseFrom = function(shareGroup){
 	$('#shareGroupChoosingModal').modal('show');	
 	var list = $('#shareGroupDualListBox').bootstrapDualListbox();	
@@ -43,6 +53,17 @@ v.showShareGroupsOnlineToChooseFrom = function(shareGroup){
 	list.bootstrapDualListbox('refresh');
 }
 
+v.showUsersOnlineForShareGroupCreationModal = function(users){
+	var list = $('#userDualListBox').bootstrapDualListbox();	
+	list.empty();
+	for (var i = users.length - 1; i >= 0; i--) {
+		list.append("<option value='"+users[i]['username']+"'>"+users[i]['username']+"</option>");
+	};
+	$('#userDualListBox').val(localStorage.getItem('username'));
+	list.bootstrapDualListbox('refresh');
+}
+
+
 v.showLoginFailure = function(data,name) {
 	$('#signInButton').tooltip({'title':"We couldn't log you in...sorry!..try again?"});
 	$('#signInButton').tooltip('show')
@@ -50,6 +71,15 @@ v.showLoginFailure = function(data,name) {
 		$('#signInButton').tooltip('destroy')
 	}, 4000);
 };
+
+v.showCreateShareGroupNameExists = function(){
+	$('#shareGroupNameToCreate').tooltip({'title':"A share group with this name already exists"});
+	$('#shareGroupNameToCreate').tooltip('show')
+	setTimeout(function() {
+		$('#shareGroupNameToCreate').tooltip('destroy')
+	}, 4000);
+}
+
 
 v.showEmptyUsernameLoginAttempt = function(){
 	$('#inputUsername').tooltip({'title':"You need to enter a username"});

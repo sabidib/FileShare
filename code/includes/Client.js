@@ -54,7 +54,7 @@ Client.prototype.addShareGroup = function(shareGroup) {
 			return false;
 		}
 	};
-	this.shareGroupsThatIAmIn.push(this);
+	this.shareGroupsThatIAmIn.push(shareGroup);
 	shareGroup.addClient(this);
 	return true;
 };

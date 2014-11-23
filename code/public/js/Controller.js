@@ -17,9 +17,11 @@ var Controller = function Controller(hostname,port){
 	this.model =model;
 	this.view = view;
 
-	fileSelectionModal = new FileSelectionModal(this.model,this.view);
+	this.fileSelectionModal = new FileSelectionModal(this.model,this.view);
+	this.shareGroupCreationModal = new ShareGroupCreationModal(this.model,this.view);
 
-	fileBrowser = new FileBrowser(this.model,this.view);
+
+	this.fileBrowser = new FileBrowser(this.model,this.view);
 	this.files_currently_sharing = [];
 		this.binarySocket.on('stream',function(stream,meta){
 		console.log('receiving stream!!!');
@@ -95,8 +97,10 @@ ctrl.addListeners = function(){
 
 	$('body').on('show.bs.tab','a[data-toggle="tab"]',function(e){
 		if($(e.target).attr('href') == "#browsing"){
-			fileBrowser.showFilesFromShareGroup(0,100);
-		}		
+			controller.fileBrowser.showFilesFromShareGroup(0,100);
+		} else if($(e.target).attr('href') == "#shareGroups"){
+			controller.updateSharingTab();
+		}
 	})
 
 
@@ -145,7 +149,7 @@ ctrl.addListeners = function(){
 				};
 
 				if(!named_same){
-					fileSelectionModal.getShareGroupsToShareWith(files,function(data){
+					controller.fileSelectionModal.getShareGroupsToShareWith(files,function(data){
 						toSend = {'files' : files, 'shareGroups' : data['shareGroups']};
 						controller.model.notifyServerOfClientsFiles(toSend,function(data){
 							//We match files we're sharing by name and associate them with the server ID
@@ -173,6 +177,12 @@ ctrl.addListeners = function(){
 
 
 		});				
+	});
+
+	$('body').on('click','#shareGroupCreation',function(e){
+		controller.shareGroupCreationModal.showShareGroupCreationModal(function(res){
+			controller.updateSharingTab();
+		});	
 	});
 
 
@@ -205,6 +215,13 @@ ctrl.addListeners = function(){
 				}				
 		});
 	});
+}
+
+
+ctrl.updateSharingTab = function(){
+	this.model.getShareGroupsForUser(localStorage.getItem('username'),function(groups){
+		controller.view.updateCurrentShareGroupTable(groups);
+	})
 }
 
 

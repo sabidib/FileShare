@@ -17,8 +17,11 @@
         <script src="/js/jquery.bootstrap-duallistbox.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script src="http://cdn.binaryjs.com/0/binary.js"></script>
+        <script src="/js/StreamRequest.js"></script>
+        <script src="/js/Stream.js"></script>
         <script src="/js/Model.js"></script>
         <script src="/js/View.js"></script>
+        <script src="/js/shareGroupCreationModal.js"></script>
         <script src="/js/FileBrowser.js"></script>
         <script src="/js/FileSelectionModal.js"></script>
         <script src="/js/Controller.js"></script>
@@ -64,7 +67,7 @@
 
 
 
-        <!-- User Modal -->
+        <!-- File Selection Modal -->
         <div class="modal fade" id='shareGroupChoosingModal'>
           <div class="modal-dialog">
             <div class="modal-content">
@@ -90,6 +93,30 @@
 
 
 
+        <!-- Share Group Creation Modal -->
+        <div class="modal fade" id='shareGroupCreationModal'>
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Who would you like to have in your share group?</h4>
+              </div>
+                <input type="text" class="form-control" id="shareGroupNameToCreate" placeholder="Enter a share group name to create it!">   
+              <div class="modal-body">
+                <select id='userDualListBox' multiple="multiple" size="10">
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" id='createShareGroup'> Create share group</button>
+                <button type="button" class="btn btn-primary" id='closeCreateShareGroup'> Cancel</button>
+              </div>
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+
+
+
 
 
         <!-- Show shared files -->
@@ -99,6 +126,7 @@
             <li role="presentation" class="active"><a href="#sharing" aria-controls="Sharing" role="tab" data-toggle="tab">Sharing</a></li>
             <li role="presentation"><a href="#browsing" aria-controls="Browsing" role="tab" data-toggle="tab">Browsing</a></li>
             <li role="presentation"><a href="#streaming" aria-controls="Streaming" role="tab" data-toggle="tab">Streaming/Downloading</a></li>
+            <li role="presentation"><a href="#shareGroups" aria-controls="ShareGroups" role="tab" data-toggle="tab">Share Groups</a></li>
           </ul>
 
             <div class="tab-content">
@@ -113,26 +141,7 @@
 
                                 </div>
                             </div>
-                            <div class="col-lg-2 text-center" id='shareGroupCreateDiv'>
-                            <h3>Create a share group</h3>
-                                <input type="text" class="form-control" id="shareGroupNameToCreate" placeholder="Enter a share group name to create it!">
-                                <button type="button" id="createShareGroup" class="btn btn-primary">
-                                    Create Share Group
-                                </button>
-                            </div>
-
-                            <div class="col-lg-2 text-center">
-                                <h3>Share groups you're part of:</h3>
-                                <div id="shareGroupList">
-                                    
-
-                                </div>
-                            </div>
-
-                            <div class="col-lg-2 text-center">
-                                <h3>Join a share group</h3>
-                                    <button type="button" id="shareGroupJoin">Open a share group</button>
-                            </div>
+                            
 
 
                         </div>
@@ -157,6 +166,28 @@
 
                 </div>
                 <div role="tabpanel" class="tab-pane" id="streaming"></div>
+                <div role="tabpanel" class="tab-pane" id="shareGroups">
+                    <div class="col-lg-2 text-center" id='shareGroupCreateDiv'>
+                            <h3>Create a share group</h3>
+                                <button type="button" id="shareGroupCreation" class="btn btn-primary">
+                                    Create Share Group
+                                </button>
+                            </div>
+
+                            <div class="col-lg-2 text-center">
+                                <h3>Share groups you're part of:</h3>
+                                <div id="shareGroupList">
+                                    
+
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2 text-center">
+                                <h3>Join a share group</h3>
+                                    <button type="button" id="shareGroupJoin">Open a share group</button>
+                            </div>
+
+                </div>
             </div>
 
             <!-- /.container -->
