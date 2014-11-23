@@ -21,6 +21,43 @@ var Controller = function Controller(hostname,port){
 
 	fileBrowser = new FileBrowser(this.model,this.view);
 	this.files_currently_sharing = [];
+		this.binarySocket.on('stream',function(stream,meta){
+		console.log('receiving stream!!!');
+		// Buffer for parts
+          var parts = [];
+          // Got new data
+          stream.on('data', function(data){            
+            parts.push(data);
+          });
+
+          stream.on('end', function(){
+	            $("#audioFile").trigger('stop');
+	            $("#videoFile").trigger('stop');
+
+	            // Display new data in browser!
+	           var url = (window.URL || window.webkitURL).createObjectURL(new Blob(parts));
+	            if(meta.type == "audio/mp3") {
+	              $("#audioFileNameHolder").text(meta.name);
+	              $("#audioFile").attr("src",url);
+	              $("#audioFile").attr("type",'audio/mp3')
+	              $("#audioFile").trigger('play');
+	            } else if(meta.type == "video/mp4") {
+	              $("#videoFileNameHolder").text(meta.name);
+	              $("#videoFile").attr("src",url);
+	              $("#videoFile").attr("type",'video/mpeg')
+	              $("#videoFile").trigger('play');
+	            } else if(meta.type.indexOf("image/") > -1){
+	              $("#imageFile").attr("src",url);
+	            } else {
+
+	              $('<div align="center"></div>').append($('<a></a>').text(meta.name).prop('download',meta.name).prop('href', url)).prependTo('body');
+	            }
+				//this.binarySocket.removeAllListeners('stream');
+		});
+
+	});
+
+	
 	//view.showLoginPage()
 	this.addListeners();
 }
@@ -145,41 +182,7 @@ ctrl.addListeners = function(){
 ctrl.startStreaming = function(streamObject){
 	//Prepare the binary js listeners to receive the data
 	
-	this.binarySocket.on('stream',function(stream,meta){
-		console.log('receiving stream!!!');
-		// Buffer for parts
-          var parts = [];
-          // Got new data
-          stream.on('data', function(data){            
-            parts.push(data);
-          });
 
-          stream.on('end', function(){
-	            $("#audioFile").trigger('stop');
-	            $("#videoFile").trigger('stop');
-
-	            // Display new data in browser!
-	           var url = (window.URL || window.webkitURL).createObjectURL(new Blob(parts));
-	            if(meta.type == "audio/mp3") {
-	              $("#audioFileNameHolder").text(meta.name);
-	              $("#audioFile").attr("src",url);
-	              $("#audioFile").attr("type",'audio/mp3')
-	              $("#audioFile").trigger('play');
-	            } else if(meta.type == "video/mp4") {
-	              $("#videoFileNameHolder").text(meta.name);
-	              $("#videoFile").attr("src",url);
-	              $("#videoFile").attr("type",'video/mpeg')
-	              $("#videoFile").trigger('play');
-	            } else if(meta.type.indexOf("image/") > -1){
-	              $("#imageFile").attr("src",url);
-	            } else {
-
-	              $('<div align="center"></div>').append($('<a></a>').text(meta.name).prop('download',meta.name).prop('href', url)).prependTo('body');
-	            }
-				this.binarySocket.removeAllListeners('stream');
-		});
-
-	});
 
 	this.model.notifySourceToStartStream(streamObject,function(data){
 
