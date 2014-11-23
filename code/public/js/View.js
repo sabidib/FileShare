@@ -17,10 +17,17 @@ v.showMainPage = function(username){
 	$('.usernameBlank').html(username);
 }
 
+v.showFilesAboutToShare = function(files) {	
+	var list = $('#files-to-be-shared');
+	list.empty();
+	for (var i = files.length - 1; i >= 0; i--) {
+		list.append("<li>" + files[i]['name'] + "</li>");
+	};	
+}
+
 v.showShareGroupsOnlineToChooseFrom = function(shareGroup){
-	$('#shareGroupChoosingModal').modal('show');
-	console.log(shareGroup);
-	var list = $('#shareGroupDualListBox').bootstrapDualListbox();
+	$('#shareGroupChoosingModal').modal('show');	
+	var list = $('#shareGroupDualListBox').bootstrapDualListbox();	
 	list.empty();
 	for (var i = shareGroup.length - 1; i >= 0; i--) {
 		list.append("<option value='"+shareGroup[i]['id']+"'>"+shareGroup[i]['name']+"</option>");
@@ -55,7 +62,7 @@ v.showUsernameAlreadyBeingUsed = function(){
 
 v.showAvailableFilesToStream = function(data){
 
-	htmlString = "<div id='file-list'>";
+	htmlString = "<div class='file-list'>";
 	htmlString += "<ul class='alt'>"
 	$.each(data, function(i, f) {		
 		htmlString += "<li class='streamableFile' data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>" + f.name + ", share group:" + f.shareGroup.name +  " from user : " + f.user +"</li>";
@@ -65,7 +72,7 @@ v.showAvailableFilesToStream = function(data){
 }
 
 v.showFilesCurrentlyBeingShared = function(data) {	
-	htmlString = "<div id='file-list'>";
+	htmlString = "<div class='file-list'>";
 	htmlString += "<ul class='alt'>"
 	$.each(data, function(i, f) {		
 		htmlString += "<li class='sharedFile' data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>" + f.name + ", share group:" + f.shareGroup.name +  "</li>";

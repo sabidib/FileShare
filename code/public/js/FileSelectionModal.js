@@ -36,12 +36,15 @@ FileSelectionModal.prototype.addListeners = function(){
 	});
 }
 
-
+// Displays the share groups that a user can share with (if any files were selected to be shared)
 FileSelectionModal.prototype.getShareGroupsToShareWith = function(files,callback){
 	this.tempCallback = callback; 
-	this.model.getAllShareGroups(function(data){
-		view.showShareGroupsOnlineToChooseFrom(data['shareGroups']);
-	})
+	if (files.length) {
+		this.model.getAllShareGroups(function(data){
+			view.showShareGroupsOnlineToChooseFrom(data['shareGroups']);			
+		})
+		view.showFilesAboutToShare(files);
+	}	
 }
 
 

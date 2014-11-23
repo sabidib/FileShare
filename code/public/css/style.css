@@ -3,22 +3,22 @@
 	-moz-opacity: 0;
 	filter:alpha(opacity=0);
 }
-#file-list {
+.file-list {
 	display:inline-block;
 }
 
-#file-list ul {
+.file-list ul {
     list-style-type: none;        
     list-style:none;
     padding-left:0;  
 } 
 
-#file-list li {
+.file-list li {
         border: 1px dotted #999;
         border-width: 1px 0;
         margin: 5px 0;
 }
-#file-list li:hover {
+.file-list li:hover {
         background: #E3E3CC;
     }
 
