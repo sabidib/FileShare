@@ -4,7 +4,7 @@
  */
 
 var ShareGroup = function ShareGroup(name) {
-	this.files = [];
+	this.files = {};
 	this.name = name;
 	this.clients = [];
 	this.numberOfClients = 0;
@@ -60,8 +60,15 @@ ShareGroup.prototype.addClient = function (aClient) {
 ShareGroup.prototype.removeClient = function(aClient){
     for(var  i=0; i < this.clients.length;i++){
     	if(this.clients[i].getUsername() == aClient.getUsername()){
+    		for(var j in this.files){
+    			if(this.files[j].client.username == aClient.getUsername()){
+    				console.log("Removing file " + this.files[j].name)
+    				delete this.files[j];
+    			} 
+    		}
     		this.clients.splice(i,1);
     		aClient.removeShareGroup(this);
+    		console.log(this.files);
     		return false;
     	}
     }

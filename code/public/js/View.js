@@ -123,9 +123,8 @@ v.showUsernameAlreadyBeingUsed = function(){
 	}, 4000);
 }
 
-
-v.showAvailableFilesToStream = function(data){	
-	if (Object.keys(data).length > 0) {	
+v.showAvailableFilesToStream = function(data) {		
+	if (Object.keys(data).length > 0) {			
 		htmlString = "<table><thead><th>Filename</th><th>Share Group</th><th>Download</th><th>Stream</th></thead><tbody>";	
 		$.each(data, function(i, f) {		
 			htmlString += "<tr><td>" + f.name + "<br><progress id='progress-bar' data-file-id='"+f.id+"' max='100' value='0' style='display:none;'></progress>"
@@ -139,12 +138,12 @@ v.showAvailableFilesToStream = function(data){
 				htmlString += "<td></td></tr>"
 			}
 		});
-		htmlString += "</tbody></table>";	
+		htmlString += "</tbody></table>";
 	}
 	else {
 		htmlString = "No files can be downloaded or streamed this moment."
 	}	
-	$('#streamable-files').html(htmlString);
+	$('#streamable-files').append(htmlString);
 }
 
 v.showFilesCurrentlyBeingShared = function(data) {	

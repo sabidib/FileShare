@@ -49,7 +49,9 @@ app.get('/', function(req, res) {
 
 io.on('connection', function(socket) {
 
-    socket.on('disconnect', function(socket) {
+    socket.on('disconnect', function(socket_dc) {
+        console.log(socket);
+        console.log(socket.username);
         var current_client = undefined;
         for (var i = server.clients.length - 1; i >= 0; i--) {
             if(server.clients[i].username == socket.username){
@@ -107,7 +109,6 @@ io.on('connection', function(socket) {
                 response = {
                     'success': true
                 };
-                delete socket.username;
                 console.log(data['username'] + " has logged out successfully!");
                 break;
             }
@@ -145,15 +146,24 @@ io.on('connection', function(socket) {
 
     socket.on('updateFileWithShareGroup', function(data) {
         var response = [];
+        var current_client = undefined;
+        for (var i = server.clients.length - 1; i >= 0; i--) {
+            if(server.clients[i].username == data['username']){
+                current_client = server.clients[i];
+            }        
+        };
+
+        if(current_client == undefined){
+            console.log("User " + data['username'] +" disconnected!");
+            return;
+        }
+
         var getFileInfo = false;
         var file;
         // remove from existing share groups
         for (var i in shareGroups) {
             if (shareGroups[i].files[data['id']]) {
-                if (!getFileInfo) {
-                    file = shareGroups[i].files[data['id']];
-                    getFileInfo = false;
-                }
+                file = shareGroups[i].files[data['id']];
                 shareGroups[i].removeFile(file);
             }
         }
@@ -163,7 +173,7 @@ io.on('connection', function(socket) {
             for (var j = data['shareGroups'].length - 1; j >= 0; j--) {
                 if (shareGroups[data['shareGroups'][j]] != undefined) {
                     group = shareGroups[data['shareGroups'][j]];
-                    file = new File(file.name, file.type, client, group);
+                    file = new File(file.name, file.fileType, current_client, group);
                 }
             };
         } else {
@@ -405,7 +415,7 @@ io.on('connection', function(socket) {
         var users_added = [];
         for (var i = data['usernames'].length - 1; i >= 0; i--) {
             for (var j = server.clients.length - 1; j >= 0; j--) {
-                if (server.clients[j].username == data['usernames']) {
+                if (server.clients[j].username == data['usernames'][i]) {
                     group.addClient(server.clients[j]);
                     users_added.push({
                         'username': server.clients[j].username
