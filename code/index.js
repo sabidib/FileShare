@@ -14,7 +14,11 @@ var File = require('./includes/File.js'); // testing File class
 var ShareGroup = require('./includes/ShareGroup.js'); // testing ShareGroup class
 var Server = require('./includes/Server.js');
 var Session = require('./includes/Session.js')
-var Client = require('./includes/Client.js') 
+var Client = require('./includes/Client.js')
+var Utilities = require('./includes/Utilities.js');
+
+var utils = new Utilities();
+
 
 globalShareGroup = new ShareGroup('global');
 shareGroups = {};
@@ -30,294 +34,387 @@ app.use(express.static(__dirname + '/public'));
 key = "DoLphInsLoVEEProGaming$!%";
 
 
-app.get('/', function(req, res){
-    cookies = new Cookies( req, res, key )
-    
+app.get('/', function(req, res) {
+    cookies = new Cookies(req, res, key)
+
     session = new Session();
-    cookies.set('id',session.getSessionID(), { maxAge: 60*24*30})
+    cookies.set('id', session.getSessionID(), {
+        maxAge: 60 * 24 * 30
+    })
 
     res.sendFile(path.resolve('public/html/index.html'));
 });
 
 
-io.on('connection', function(socket){
 
-    socket.on('disconnect',function(socket){
-        console.log('They left!!');
+io.on('connection', function(socket) {
+
+    socket.on('disconnect', function(socket) {
+        var current_client = undefined;
+        for (var i = server.clients.length - 1; i >= 0; i--) {
+            if(server.clients[i].username == socket.username){
+                current_client = server.clients[i];
+            }
+        };
+        if(current_client != undefined){
+            console.log(current_client);
+            current_client.disconnectAllShareGroups();
+            current_client.removeAllFiles();
+            server.removeClient(current_client);
+        }
     });
 
-  socket.on('isUserConnected',function(data){
-        response = {'isUserConnected': true};
+
+
+    socket.on('isUserConnected', function(data) {
+        response = {
+            'isUserConnected': true
+        };
         for (var i = server.clients.length - 1; i >= 0; i--) {
-          if(server.clients[i].getUsername() == data['username']){
-            socket.emit('isUserConnectedResponse',response);
-            return;
-          }
+            if (server.clients[i].getUsername() == data['username']) {
+                socket.emit('isUserConnectedResponse', response);
+                return;
+            }
         };
         response['isUserConnected'] = false;
-        socket.emit('isUserConnectedResponse',response);
+        utils.logInfo('isUserConnected',"Checking if " + data['username'] + " is connected." + "Found " + response['isUserConnected']);
+        socket.emit('isUserConnectedResponse', response);
         return;
     });
 
 
-  socket.on('loginUser',function(data){
-    response = {'success' : false};
-    client = new Client(data['username'],server,socket,session);
-    client.setStatusToLoggedIn();
-    response = {'success' : true};
-    console.log(data['username'] + " has logged in successfully!");
-    socket.emit('loginUserResponse',response);
-  });
+    socket.on('loginUser', function(data) {
+        response = {
+            'success': false
+        };
+        utils.logInfo('loginUser',"Logging in user: "  + data['username']);
+        var new_client = new Client(data['username'], server, socket, session);
+        new_client.setStatusToLoggedIn();
+        response = {
+            'success': true
+        };
+        socket.username = data['username'];
+        socket.emit('loginUserResponse', response);
+    });
 
-  socket.on('logoutUser',function(data){
-    response = {'success' : false};        
-    for (var i = server.clients.length - 1; i >= 0; i--) {
-        if(server.clients[i].getUsername() == data['username']){
-          server.removeClient(server.clients[i]);
-          response = {'success' : true};                    
-          console.log(data['username'] + " has logged out successfully!"); 
-          break;
-       }
-    };    
-    socket.emit('logoutUserResponse',response);
-  });
+    socket.on('logoutUser', function(data) {
+        response = {
+            'success': false
+        };
+        for (var i = server.clients.length - 1; i >= 0; i--) {
+            if (server.clients[i].getUsername() == data['username']) {
+                server.removeClient(server.clients[i]);
+                response = {
+                    'success': true
+                };
+                delete socket.username;
+                console.log(data['username'] + " has logged out successfully!");
+                break;
+            }
+        };
+        socket.emit('logoutUserResponse', response);
+    });
 
-  socket.on('getUsersOnline',function(data){
-    //todo: make sure it's valid user that has been authenticated
-    var response = {'users':[]} 
-    for (var i = server.clients.length - 1; i >= 0; i--) {
-        response['users'].push({'username': server.clients[i].getUsername() });
-    }
-    socket.emit('getUsersOnlineResponse',response);
-  });
+    socket.on('getUsersOnline', function(data) {
+        //todo: make sure it's valid user that has been authenticated
+        var response = {
+            'users': []
+        }
+        for (var i = server.clients.length - 1; i >= 0; i--) {
+            response['users'].push({
+                'username': server.clients[i].getUsername()
+            });
+        }
+        socket.emit('getUsersOnlineResponse', response);
+    });
 
 
-  socket.on('getAllShareGroups',function(data){
-    //todo: make sure it's valid user that has been authenticated
-    var response = {'shareGroups':[]} 
-    for(i in shareGroups){
-        response['shareGroups'].push({'name': shareGroups[i].getShareGroupName() , 
-                                'id' : shareGroups[i].getShareGroupID()
-                            });
-    }
-    socket.emit('getAllShareGroupsResponse',response);
-  });
+    socket.on('getAllShareGroups', function(data) {
+        //todo: make sure it's valid user that has been authenticated
+        var response = {
+            'shareGroups': []
+        }
+        for (i in shareGroups) {
+            response['shareGroups'].push({
+                'name': shareGroups[i].getShareGroupName(),
+                'id': shareGroups[i].getShareGroupID()
+            });
+        }
+        socket.emit('getAllShareGroupsResponse', response);
+    });
 
-   socket.on('updateFileWithShareGroup',function(data){        
-        var response = [];        
-        var getFileInfo = false;        
-        var file;                            
-        console.log(data);
+    socket.on('updateFileWithShareGroup', function(data) {
+        var response = [];
+        var getFileInfo = false;
+        var file;
         // remove from existing share groups
-        for(var i in shareGroups){
+        for (var i in shareGroups) {
             if (shareGroups[i].files[data['id']]) {
                 if (!getFileInfo) {
-                    file = shareGroups[i].files[data['id']];                    
+                    file = shareGroups[i].files[data['id']];
                     getFileInfo = false;
                 }
-                shareGroups[i].removeFile(file);                
+                shareGroups[i].removeFile(file);
             }
         }
 
         //add to new share groups (if any)
         if (data['shareGroups']) {
             for (var j = data['shareGroups'].length - 1; j >= 0; j--) {
-                if(shareGroups[data['shareGroups'][j]] != undefined){
-                    group = shareGroups[data['shareGroups'][j]];                
-                    file = new File(file.name,file.type,client,group);
-                    console.log('added a file');
+                if (shareGroups[data['shareGroups'][j]] != undefined) {
+                    group = shareGroups[data['shareGroups'][j]];
+                    file = new File(file.name, file.type, client, group);
                 }
-            };        
+            };
         } else {
             file.client.removeFile(file);
-            console.log('removed a file');
-            delete file;            
+            delete file;
         }
 
-        socket.emit('updateFileWithShareGroupResponse',response);
-  });
+        socket.emit('updateFileWithShareGroupResponse', response);
+    });
 
 
-   socket.on('getShareGroupsForFile',function(data){        
-        var response = {'file':{}, 'shareGroups':[]} ;
-        var getFileInfo = false;        
-        for(var i in shareGroups){
+    socket.on('getShareGroupsForFile', function(data) {
+        var response = {
+            'file': {},
+            'shareGroups': []
+        };
+        var getFileInfo = false;
+        for (var i in shareGroups) {
             if (shareGroups[i].files[data['id']]) {
                 if (!getFileInfo) {
                     var file = shareGroups[i].files[data['id']];
-                    response['file'] = {'name': file.name, 'id' : file.id};
+                    response['file'] = {
+                        'name': file.name,
+                        'id': file.id
+                    };
                     getFileInfo = false;
                 }
-                response['shareGroups'].push({'name': shareGroups[i].getShareGroupName() , 
-                                        'id' : shareGroups[i].getShareGroupID()
-                                    });
+                response['shareGroups'].push({
+                    'name': shareGroups[i].getShareGroupName(),
+                    'id': shareGroups[i].getShareGroupID()
+                });
             }
         }
-        socket.emit('getShareGroupsForFileResponse',response);
-  });
+        socket.emit('getShareGroupsForFileResponse', response);
+    });
 
-  socket.on('getShareGroupsForUser',function(data){
-    var response = [] 
-    var username = data.username;
+    socket.on('getShareGroupsForUser', function(data) {
+        var response = []
+        var username = data.username;
         for (var i = server.clients.length - 1; i >= 0; i--) {
-            if(server.clients[i].username == username){
+            if (server.clients[i].username == username) {
                 for (var j = server.clients[i].shareGroupsThatIAmIn.length - 1; j >= 0; j--) {
                     var group = server.clients[i].shareGroupsThatIAmIn[j];
-                    response.push({'id' : group.getShareGroupID(),
-                                    'name' : group.getShareGroupName()
-                                });
+                    response.push({
+                        'id': group.getShareGroupID(),
+                        'name': group.getShareGroupName()
+                    });
                 };
             }
         };
-    socket.emit('getShareGroupsForUserResponse',response)
-  });
+        socket.emit('getShareGroupsForUserResponse', response)
+    });
 
-  socket.on('createShareGroup' ,function(data){
-    var s = new ShareGroup(data['name']); 
-    shareGroups[s.getShareGroupID()] = s;
-    socket.emit('createShareGroupResponse',{'sucess':true, 'id' : s.getShareGroupID()});
-  });
+    socket.on('createShareGroup', function(data) {
+        var s = new ShareGroup(data['name']);
+        shareGroups[s.getShareGroupID()] = s;
+        socket.emit('createShareGroupResponse', {
+            'sucess': true,
+            'id': s.getShareGroupID()
+        });
+    });
 
-  socket.on('getFilesFromShareGroup',function(data){
-    var response = {'files' : {}};
-    var id = data['id'];
-    var amount = data['amount'];
-    var group = shareGroups[id];
-    var c = 0;
-    for(var i in group.files){
-        if(c == amount ){
-            break;
-        }   
-        f = group.files[i];
-        response['files'][i] = {
-            'name' : f.getFileName(),
-            'id' : f.getFileID(),
-            'user' : f.client.username,
-            'type' : f.fileType,
-            'shareGroup' : {
-                'id' : f.shareGroup.getShareGroupID(),
-                'name' : f.shareGroup.getShareGroupName()
-            } 
-        }       
-        c++; // Bjarne would be proud...jeeez
-    }
-    socket.emit('getFilesFromShareGroupResponse',response)
-  });
-
-  socket.on('getFilesFromUser',function(data){    
-    var c;
-    var files = []; 
-    for (var i = server.clients.length - 1; i >= 0; i--) {
-        if(server.clients[i].getUsername() == data['username']){
-            c = server.clients[i];            
-            break;
-        }
-    };
-   for(var item in c.files) {
-        files.push({'name':client.files[item].getFileName(),
-                                  'id':client.files[item].getFileID(),                                                                
-                                  'shareGroup' :{
-                                    'id' :  client.files[item].shareGroup.getShareGroupID(),
-                                    'name' : client.files[item].shareGroup.getShareGroupName()
-                                  }
-                              });
-    }
-    socket.emit('getFilesFromUserResponse', files)
-   });
-  socket.on('getStream',function(data){
-    var response = {'source': {} , 'destination' : {} , 'file_id': {} };
-    var file_id = data.file_id;
-    var group_id = data.share_group_id;
-
-    var requested_file = getFileByIDFromShareGroupID(group_id,file_id);
-
-    response.source = requested_file.client.username;
-    response.destination = client.username;
-    response.file_id = file_id;
-
-
-    socket.emit('getStreamResponse',response);
-  });
-
-
-
-  socket.on('notifyServerOfClientsFiles',function(data){
-    var files = data['files'];
-    console.log(data);
-    for (var i = data['shareGroups'].length - 1; i >= 0; i--) {
-        client.addShareGroup(shareGroups[data['shareGroups'][i]]);
-    };
-
-    for (var i = files.length - 1; i >= 0; i--) {
-        for (var j = data['shareGroups'].length - 1; j >= 0; j--) {
-            if(shareGroups[data['shareGroups'][j]] != undefined){
-                group = shareGroups[data['shareGroups'][j]];
-                console.log('added a file');
-                var file = new File(files[i].name,files[i].type,client,group)       
-            }
+    socket.on('getFilesFromShareGroup', function(data) {
+        var response = {
+            'files': {}
         };
-    };
-    file_info_to_return = [];
-    for(var item in client.files){
-        file_info_to_return.push({'name':client.files[item].getFileName(),
-                                  'id':client.files[item].getFileID(),
-                                  'shareGroup' :{
-                                    'id' :  client.files[item].shareGroup.getShareGroupID(),
-                                    'name' : client.files[item].shareGroup.getShareGroupName()
-                                  }
-                              });
-    }
+        var id = data['id'];
+        var amount = data['amount'];
+        var group = shareGroups[id];
+        var c = 0;
+        for (var i in group.files) {
+            if (c == amount) {
+                break;
+            }
+            f = group.files[i];
+            response['files'][i] = {
+                'name': f.getFileName(),
+                'id': f.getFileID(),
+                'user': f.client.username,
+                'type': f.fileType,
+                'shareGroup': {
+                    'id': f.shareGroup.getShareGroupID(),
+                    'name': f.shareGroup.getShareGroupName()
+                }
+            }
+            c++; // Bjarne would be proud...jeeez
+        }
+        socket.emit('getFilesFromShareGroupResponse', response)
+    });
 
-    socket.emit('notifyServerOfClientsFilesResponse',file_info_to_return);
-  })
-
-    socket.on('notifySourceToStartStream',function(stream){
-        response = {"success" : false, "message" :""};
-
-        source_client = {};
+    socket.on('getFilesFromUser', function(data) {
+        var c;
+        var files = [];
         for (var i = server.clients.length - 1; i >= 0; i--) {
-            if(server.clients[i].username == stream.source){
-                source_client = client;
+            if (server.clients[i].getUsername() == data['username']) {
+                c = server.clients[i];
+                break;
             }
         };
-        if(source_client = {}){
-            //Fail!!
-            response['message'] = "Could not find source client. They may have disconnected.";
-            socket.emit('notifySourceToStartStreamReponse',response)
+        for (var item in c.files) {
+            files.push({
+                'name': c.files[item].getFileName(),
+                'id': c.files[item].getFileID(),
+                'shareGroup': {
+                    'id': c.files[item].shareGroup.getShareGroupID(),
+                    'name': c.files[item].shareGroup.getShareGroupName()
+                }
+            });
+        }
+        socket.emit('getFilesFromUserResponse', files)
+    });
+    socket.on('getStream', function(data) {
+        var response = {
+            'source': {},
+            'destination': {},
+            'file_id': {}
+        };
+
+        var file_id = data.file_id;
+        var group_id = data.share_group_id;
+
+        var requested_file = getFileByIDFromShareGroupID(group_id, file_id);
+        console.log(requested_file);
+        response.source = requested_file.client.username;
+        response.destination = data.destination_username;
+        response.file_id = file_id;
+
+        message = "Connected stream for file:" + response.file_id + " with destination " + response.destination +" and source " + response.source;
+
+        utils.logInfo("getStream","Data is " + JSON.stringify(data)+ ". Found that" + message)
+
+        socket.emit('getStreamResponse', response);
+    });
+
+
+
+    socket.on('notifyServerOfClientsFiles', function(data) {
+        var files = data['files'];
+        var cur_user = undefined;
+        for (var i = server.clients.length - 1; i >= 0; i--) {
+            if(server.clients[i].username == data['username_to_add_to']){
+                cur_user = server.clients[i];
+            }
+        };
+
+        if(cur_user == undefined){
+            console.log("attempted to add files to user " + data['username_to_add_to'] + " which does not exist anymore!");
+            return;
         }
 
-        client.socket.emit('startStreaming',{"file_id": stream.file_id, "destination" : stream.destination, "download": stream.download});
-        console.log(stream);
+
+        for (var i = data['shareGroups'].length - 1; i >= 0; i--) {
+            cur_user.addShareGroup(shareGroups[data['shareGroups'][i]]);
+        };
+
+        for (var i = files.length - 1; i >= 0; i--) {
+            for (var j = data['shareGroups'].length - 1; j >= 0; j--) {
+                if (shareGroups[data['shareGroups'][j]] != undefined) {
+                    group = shareGroups[data['shareGroups'][j]];
+                    var file = new File(files[i].name, files[i].type, cur_user, group)
+                }
+            };
+        };
+        file_info_to_return = [];
+        for (var item in cur_user.files) {
+            file_info_to_return.push({
+                'name': cur_user.files[item].getFileName(),
+                'id': cur_user.files[item].getFileID(),
+                'shareGroup': {
+                    'id': cur_user.files[item].shareGroup.getShareGroupID(),
+                    'name': cur_user.files[item].shareGroup.getShareGroupName()
+                }
+            });
+        }
+
+        socket.emit('notifyServerOfClientsFilesResponse', file_info_to_return);
+    })
+
+    socket.on('notifySourceToStartStream', function(stream) {
+        response = {
+            "success": false,
+            "message": ""
+        };
+
+        utils.logInfo("notifySourceToStartStream","Stream to start is " + JSON.stringify(stream))
+
+        source_client = undefined;
+        for (var i = server.clients.length - 1; i >= 0; i--) {
+            if (server.clients[i].username == stream.source) {
+                source_client = server.clients[i];
+                break;
+            }
+        };
+        if (source_client == undefined) {
+            //Fail!!
+            console.log("FAILED!");
+            response['message'] = "Could not find source client. They may have disconnected.";
+            socket.emit('notifySourceToStartStreamReponse', response)
+        }
+
+        source_client.socket.emit('startStreaming', {
+            "file_id": stream.file_id,
+            "destination": stream.destination,
+            "download": stream.download
+        });
         response['success'] = true;
         response['message'] = "Started stream";
 
-        socket.emit('notifySourceToStartStreamReponse',response)
+        socket.emit('notifySourceToStartStreamReponse', response)
     });
 
-    socket.on('getCurrentlySharedFiles',function(){
+    socket.on('getCurrentlySharedFiles', function(data) {
         var files = [];
-        for(var i in client.files){
-            files.push({
-                            'name' : client.files[i].getFileName() ,
-                            'id' : client.files[i].getFileID()
-                        });
+        var cur_user = undefined
+        console.log(data);
+        for (var i = server.clients.length - 1; i >= 0; i--) {
+            if(server.clients[i].username == data['username']){
+                cur_user = server.clients[i];
+            }
+        };
+
+        if(cur_user == undefined){
+            console.log("User disconnected!");
+            return;
         }
-        socket.emit('getCurrentlySharedFilesResponse',files);
+
+
+        for (var i in cur_user.files) {
+            files.push({
+                'name': cur_user.files[i].getFileName(),
+                'id': cur_user.files[i].getFileID()
+            });
+        }
+        socket.emit('getCurrentlySharedFilesResponse', files);
     });
 
-    socket.on('addUsersToShareGroup',function(data){
+    socket.on('addUsersToShareGroup', function(data) {
         var group = shareGroups[data['shareGroupID']];
         var users_added = [];
         for (var i = data['usernames'].length - 1; i >= 0; i--) {
             for (var j = server.clients.length - 1; j >= 0; j--) {
-                if(server.clients[j].username == data['usernames']){
+                if (server.clients[j].username == data['usernames']) {
                     group.addClient(server.clients[j]);
-                    users_added.push({'username' : server.clients[j].username});
+                    users_added.push({
+                        'username': server.clients[j].username
+                    });
                 }
             };
         };
 
-        socket.emit('addUsersToShareGroupResponse',users_added);
+        socket.emit('addUsersToShareGroupResponse', users_added);
     });
 
 
@@ -325,14 +422,13 @@ io.on('connection', function(socket){
 });
 
 
-function getFileByIDFromShareGroupID(g_id,f_id){
+function getFileByIDFromShareGroupID(g_id, f_id) {
     var group = shareGroups[g_id];
-    console.log(group);
-    for(file in group.files){
-        if(file == f_id){
+    for (file in group.files) {
+        if (file == f_id) {
             return group.files[file];
         }
-    } 
+    }
     return {};
 }
 
@@ -340,41 +436,50 @@ function getFileByIDFromShareGroupID(g_id,f_id){
 
 
 
-var binaryServer = BinaryServer({port: 9000});
+var binaryServer = BinaryServer({
+    port: 9000
+});
 
 // Wait for new user connections
-binaryServer.on('connection', function(c){
-      // Incoming stream from browser
-  c.on('stream',function(stream,meta){
-    // Supa hacks
-    if(meta['shw'] != undefined){
-        client.binarySocket = c;
-        console.log("BIANRUY SOCKET");
-    } else {
-        
-        var destination = meta.destination;
+binaryServer.on('connection', function(c) {
+    // Incoming stream from browser
+    c.on('stream', function(stream, meta) {
+        // Supa hacks
+        if (meta['username_get_socket'] != undefined) {
+            for (var i = server.clients.length - 1; i >= 0; i--) {
+                if(server.clients[i].username == meta['username_get_socket']){
+                    server.clients[i].binarySocket = c;
+                    console.log(server.clients[i].username +" had their binarySocket set.");
+                    break;
+                }
+            };
+        } else {
 
-        var client_object_destination = {};
+            var destination = meta.destination;
 
-        for (var i = server.clients.length - 1; i >= 0; i--) {
-            if(server.clients[i].username == destination){
-                client_object_destination = server.clients[i];
-            }
-        };
+            var client_object_destination = {};
 
-        client_object_destination.binarySocket.send(stream,meta);
+            for (var i = server.clients.length - 1; i >= 0; i--) {
+                if (server.clients[i].username == destination) {
+                    client_object_destination = server.clients[i];
+                }
+            };
 
-        stream.on('data', function(data){
-          stream.write({rx: data.length / meta.size});
-        });
-    }
-  });
+            client_object_destination.binarySocket.send(stream, meta);
+
+            stream.on('data', function(data) {
+                stream.write({
+                    rx: data.length / meta.size
+                });
+            });
+        }
+    });
 
 
 
 });
 
 
-http.listen(3000, function(){
-  console.log('listening on *:3000');
+http.listen(3000, function() {
+    console.log('listening on *:3000');
 });

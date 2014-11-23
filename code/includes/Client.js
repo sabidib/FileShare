@@ -64,6 +64,31 @@ Client.prototype.addShareGroup = function(shareGroup) {
 	return true;
 };
 
+Client.prototype.removeShareGroup = function(shareGroup){
+	for (var i = this.shareGroupsThatIAmIn.length - 1; i >= 0; i--) {
+		if(this.shareGroupsThatIAmIn[i].shareGroupID == shareGroup.shareGroupID){
+    		this.shareGroupsThatIAmIn.splice(i,1);
+			shareGroup.removeClient(this);
+			return true;
+		}
+	};
+	return false;
+
+}
+
+Client.prototype.disconnectAllShareGroups = function(){
+	for (var i = this.shareGroupsThatIAmIn.length - 1; i >= 0; i--) {
+		this.removeShareGroup(this.shareGroupsThatIAmIn[i]);
+	};
+}
+
+Client.prototype.removeAllFiles = function(){
+	for(var i in this.files){
+		this.files[i].deleteFile();
+	}
+	this.files = {};
+}
+
 Client.prototype.setServer = function(server){
 	this.server = server;
 	return true;

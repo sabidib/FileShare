@@ -24,9 +24,11 @@ m.isUserConnected = function(username,callback){
 
 m.loginUser = function(username,callback){
 	var md = this;		
+	this.setCallback('loginUserResponse',function(data){
+											callback(data);	
+											setTimeout(function() {md.binarySocket.send("file",{'username_get_socket' : username})}, 400);
+										});
 	this.socket.emit('loginUser',{'username' : username});	
-	this.setCallback('loginUserResponse',callback);
-	setTimeout(function() {md.binarySocket.send("file",{'soMuchHacksWeNeedBinarySocketClientAssociatedWithClient' : true})}, 400);
 
 }
 
@@ -83,7 +85,10 @@ m.getShareGroupsForFile = function(data,callback){
 
 m.getStream = function(data,callback){
 	this.setCallback('getStreamResponse',callback);
-	this.socket.emit('getStream',{'file_id' : data.request.file_id , 'share_group_id' : data.share_group_id});	
+	this.socket.emit('getStream',{'file_id' : data.request.file_id , 
+									'destination_username' : data.request.request_source_username , 
+									'share_group_id' : data.share_group_id
+								});	
 }
 
 
@@ -93,9 +98,9 @@ m.notifySourceToStartStream = function(stream,callback){
 }
 
 
-m.getCurrentlySharedFiles = function(callback){
+m.getCurrentlySharedFiles = function(username,callback){
 	this.setCallback('getCurrentlySharedFilesResponse',callback);
-	this.socket.emit('getCurrentlySharedFiles');	
+	this.socket.emit('getCurrentlySharedFiles',{'username' : username});	
 
 }
 

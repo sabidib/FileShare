@@ -18,6 +18,16 @@ u.generateRandomKey = function (){
 		})()();
 }
 
+u.logInfo = function(header,message){
+	console.log("");
+	console.log("")
+		console.log(">>>>*********"+header+"***********")
+	console.log("")
+		console.log(message);
+	console.log("")
+		console.log("<<<<*********"+header+"***********")
+}
+
 
 
 

@@ -57,6 +57,16 @@ ShareGroup.prototype.addClient = function (aClient) {
 	aClient.addShareGroup(this);
 };
 
+ShareGroup.prototype.removeClient = function(aClient){
+    for(var  i=0; i < this.clients.length;i++){
+    	if(this.clients[i].getUsername() == aClient.getUsername()){
+    		this.clients.splice(i,1);
+    		aClient.removeShareGroup(this);
+    		return false;
+    	}
+    }
+}
+
 ShareGroup.prototype.getNumberOfClients = function(){
 	return this.clients.length;
 }

@@ -10,7 +10,7 @@ var Controller = function Controller(hostname,port){
 	this.setupBinary(hostname,port);
 	console.log(hostname + " " + port)
  
-
+	this.current_username = "";
 
 	model = new Model(this.socket,this.binarySocket);
 	view = new View();
@@ -24,9 +24,9 @@ var Controller = function Controller(hostname,port){
 
 	this.fileBrowser = new FileBrowser(this.model,this.view);
 	this.files_currently_sharing = [];
-		this.binarySocket.on('stream',function(stream,meta){
+	this.binarySocket.on('stream',function(stream,meta){
 		console.log('receiving stream!!!');		
-		$('#progress-bar').show();
+		$("#progress-bar[data-file-id='"+meta['file_id']+"']").show();
 		// Buffer for parts
           var parts = [];
           // Got new data
@@ -34,13 +34,13 @@ var Controller = function Controller(hostname,port){
           stream.on('data', function(data){            
             parts.push(data);                 
             tx += data.byteLength / meta.size;           	
-            $('#progress-bar').val(Math.round(tx*100));            
+            $("#progress-bar[data-file-id='"+meta['file_id']+"']").val(Math.round(tx*100));            
           });
 
           stream.on('end', function(){          		
 	            $("#audioFile").trigger('stop');
 	            $("#videoFile").trigger('stop');
-	            $('#progress-bar').hide();
+	           	$("#progress-bar[data-file-id='"+meta['file_id']+"']").hide();
 	            // Display new data in browser!
 	           var url = (window.URL || window.webkitURL).createObjectURL(new Blob(parts));
 	           if (meta.download == true) {
@@ -95,22 +95,41 @@ ctrl.setupBinary = function(hostname,port){
     this.binarySocket = new BinaryClient('ws://'+hostname+':'+port);
 }
 
+ctrl.setCurrentUsername = function(username){
+	this.current_username = username;
+}
+
+ctrl.loginUsername = function(username){
+	controller = this;	
+	controller.model.isUserConnected(username,function(data){
+		if(!data['isUserConnected']){
+			controller.model.loginUser(username,function(data){
+				if(data['success']){
+					view.showMainPage(username);	
+					localStorage.setItem('username', username);
+					controller.setCurrentUsername(username);
+				} else {
+					view.showLoginFailure();
+				}
+			});
+		} else {
+			view.showUsernameAlreadyBeingUsed();
+		}
+	});
+
+}
+
 ctrl.addListeners = function(){
 	controller = this;	
 	$(document).ready(function() {
-		username = localStorage.getItem('username');		
-		if (username){			
-			controller.model.loginUser(username,function(data){
-				if(data['success']){
-					view.showMainPage(username);				
-				} else {
-					view.showLoginFailure();
-				}				
-			});
-		}
-		else {
+		username = localStorage.getItem('username');
+		if(username != "" && username != undefined){
+			controller.loginUsername(username);
+			view.showMainPage(username)
+		} else {
 			view.showMainPage();
 		}
+
 	});
 
 
@@ -130,21 +149,7 @@ ctrl.addListeners = function(){
 			view.showEmptyUsernameLoginAttempt();
 			return;
 		} 
-		controller.model.isUserConnected(username,function(data){
-			console.log(data);
-			if(!data['isUserConnected']){
-				controller.model.loginUser(username,function(data){
-					if(data['success']){
-						view.showMainPage(username);	
-						localStorage.setItem('username', username);
-					} else {
-						view.showLoginFailure();
-					}
-				});
-			} else {
-				view.showUsernameAlreadyBeingUsed();
-			}
-		});
+		controller.loginUsername(username);
 	});
 
 	// This listener pops up a file dialog and allows the user to select files to be shared. After selection,
@@ -156,7 +161,7 @@ ctrl.addListeners = function(){
 		$('#add-files-dialog').click();
 		$('#add-files-dialog').change(function() {
 			var files = $('#add-files-dialog')[0].files;
-			var currently_shared_files = controller.model.getCurrentlySharedFiles(function(data){
+			var currently_shared_files = controller.model.getCurrentlySharedFiles(controller.current_username,function(data){
 				named_same = false;
 				for (var i = data.length - 1; i >= 0; i--) {
 					for (var j = files.length - 1; j >= 0; j--) {
@@ -169,7 +174,7 @@ ctrl.addListeners = function(){
 
 				if(!named_same){
 					controller.fileSelectionModal.getShareGroupsToShareWith(files,function(data){
-						toSend = {'files' : files, 'shareGroups' : data['shareGroups']};
+						toSend = {'files' : files, 'shareGroups' : data['shareGroups'],'username_to_add_to': controller.current_username};
 						controller.model.notifyServerOfClientsFiles(toSend,function(data){
 							//We match files we're sharing by name and associate them with the server ID
 							for (var i = data.length - 1; i >= 0; i--) {
@@ -206,16 +211,16 @@ ctrl.addListeners = function(){
 	$('body').on('click',".stream-button",function(e){	
 		var file_id = $(this).attr('data-file-id');			
 		var share_group_id = $(this).attr('data-share-group-id');
-		var req = new StreamRequest(file_id);
+		var req = new StreamRequest(username,file_id);
 		controller.model.getStream({'request' : req , 'share_group_id' : share_group_id} ,function(data){
-			var stream = new Stream(data.source,data.destination,data.file_id);
+			var stream = new Stream(data.source,data.destination,data.file_id,false);
 			controller.startStreaming(stream);
 		});
 	});
 	$('body').on('click',".download-button",function(e){
 		var file_id = $(this).attr('data-file-id');
 		var share_group_id = $(this).attr('data-share-group-id');
-		var req = new StreamRequest(file_id);
+		var req = new StreamRequest(username,file_id);
 		controller.model.getStream({'request' : req , 'share_group_id' : share_group_id} ,function(data){
 			var stream = new Stream(data.source,data.destination,data.file_id, true);
 			controller.startStreaming(stream);
@@ -262,9 +267,6 @@ ctrl.updateSharingTab = function(){
 
 ctrl.startStreaming = function(streamObject){
 	//Prepare the binary js listeners to receive the data
-	
-
-
 	this.model.notifySourceToStartStream(streamObject,function(data){
 
 	});
@@ -292,51 +294,6 @@ ctrl.setSocketIOListeners = function(){
 		};
 	});
 }
-
-
-ctrl.receiveStreamFromServer = function(stream,meta){
-	  // Buffer for parts
-	  var parts = [];
-	  // Got new data
-	  stream.on('data', function(data){            
-	    parts.push(data);
-	  });
-	  stream.on('end', function(){
-          console.log(meta);
-          // Buffer for parts
-          var parts = [];
-          // Got new data
-          stream.on('data', function(data){            
-            parts.push(data);
-          });
-          stream.on('end', function(){
-            $("#audioFile").trigger('stop');
-            $("#videoFile").trigger('stop');
-
-            // Display new data in browser!
-           var url = (window.URL || window.webkitURL).createObjectURL(new Blob(parts));
-            if(meta.type == "audio/mp3") {
-              $("#audioFileNameHolder").text(meta.name);
-              $("#audioFile").attr("src",url);
-              $("#audioFile").attr("type",'audio/mp3')
-              $("#audioFile").trigger('play');
-            } else if(meta.type == "video/mp4") {
-              $("#videoFileNameHolder").text(meta.name);
-              $("#videoFile").attr("src",url);
-              $("#videoFile").attr("type",'video/mpeg')
-              $("#videoFile").trigger('play');
-            } else if(meta.type.indexOf("image/") > -1){
-              $("#imageFile").attr("src",url);
-            } else {
-
-            }
-
-          });
-	  });
-}
-
-
-
 
 
 ctrl.setSessionID = function(sessionID){

@@ -1,6 +1,7 @@
 
-var StreamRequest = function StreamRequest(file_id){
+var StreamRequest = function StreamRequest(request_source_username,file_id){
 	this.file_id = file_id
+	this.request_source_username = request_source_username;
 }
 
 

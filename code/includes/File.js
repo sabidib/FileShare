@@ -46,6 +46,11 @@ File.prototype.setShareGroup = function(shareGroup) {
 	this.shareGroup = shareGroup;
 }
 
+File.prototype.deleteFile = function(){
+	this.shareGroup.removeFile(this);
+	client.removeFile(this);
+}
+
 
 
 module.exports = File;				// this line is so that this class can be accessed by other files
