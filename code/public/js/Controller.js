@@ -36,7 +36,8 @@ var Controller = function Controller(hostname,port){
             parts.push(data);                 
             tx += data.byteLength / meta.size;           	
             $("#progress-bar[data-file-id='"+meta['file_id']+"']").val(Math.round(tx*100));            
-          });     
+          });    
+
           stream.on('close', function(e) {          	  
           	  $("#progress-bar[data-file-id='"+meta['file_id']+"']").hide();
           	  $('#inCaseClose-'+meta['file_id']).html('<strong>User has disconnected or file no longer exists. Refreshing tabs...</strong>');
@@ -44,6 +45,7 @@ var Controller = function Controller(hostname,port){
    					$('#refreshButton').click();
 			  }, 2000);          	  
           });
+
           stream.on('end', function(){          		
 	            $("#audioFile").trigger('stop');
 	            $("#videoFile").trigger('stop');
@@ -173,6 +175,7 @@ ctrl.addListeners = function(){
 	});
 	$('body').on('click','#refreshButton',function(e){
 		// update everything
+		e.preventDefault();
 		$("#streamable-files").html("");
 		controller.binarySocket.emit('close');
 		controller.fileBrowser.showFilesForUser(localStorage.getItem('username'));	
@@ -227,6 +230,7 @@ ctrl.addListeners = function(){
 				if(!named_same){
 					controller.fileSelectionModal.getShareGroupsToShareWith(files,function(data){
 						toSend = {'files' : files, 'shareGroups' : data['shareGroups'],'username_to_add_to': controller.current_username};
+						console.log(files);
 						controller.model.notifyServerOfClientsFiles(toSend,function(data){
 							//We match files we're sharing by name and associate them with the server ID
 							for (var i = data.length - 1; i >= 0; i--) {
@@ -237,7 +241,8 @@ ctrl.addListeners = function(){
 								};
 							};							
 							controller.model.getFilesFromUser(localStorage.getItem('username'), function(files) {
-								view.showFilesCurrentlyBeingShared(files);					
+								view.showFilesCurrentlyBeingShared(files);								
+								$('#refreshButton').click();	
 							});
 						});
 					})
@@ -317,7 +322,8 @@ ctrl.addListeners = function(){
 			controller.fileSelectionModal.editFileShareGroups(data, function(groups){
 				controller.model.updateFileWithShareGroup({'id':fileID, 'shareGroups':groups['shareGroups'],'username' : controller.current_username}, function() {
 					controller.model.getFilesFromUser(localStorage.getItem('username'), function(files) {
-						view.showFilesCurrentlyBeingShared(files);					
+						view.showFilesCurrentlyBeingShared(files);	
+						$('#refreshButton').click();				
 					});
 				});								
 			});

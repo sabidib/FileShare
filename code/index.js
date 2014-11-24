@@ -45,6 +45,17 @@ app.get('/', function(req, res) {
     res.sendFile(path.resolve('public/html/index.html'));
 });
 
+app.get('/test.html', function(req, res) {
+    cookies = new Cookies(req, res, key)
+
+    session = new Session();
+    cookies.set('id', session.getSessionID(), {
+        maxAge: 60 * 24 * 30
+    })
+
+    res.sendFile(path.resolve('public/html/test.html'));
+});
+
 
 
 io.on('connection', function(socket) {
@@ -139,7 +150,7 @@ io.on('connection', function(socket) {
     });
 
     socket.on('updateFileWithShareGroup', function(data) {
-        var response = [];
+        var response = {'removed':false};
         var current_client = clientsObj[data['username']];
         if(current_client == undefined){
             console.log("User " + data['username'] +" disconnected!");
@@ -154,19 +165,22 @@ io.on('connection', function(socket) {
                 file = shareGroups[i].files[data['id']];
                 shareGroups[i].removeFile(file);
             }
-        }
-
+        }        
         //add to new share groups (if any)
-        if (data['shareGroups']) {
+        if (data['shareGroups'].length > 0) {
             for (var j = data['shareGroups'].length - 1; j >= 0; j--) {
                 if (shareGroups[data['shareGroups'][j]] != undefined) {
                     group = shareGroups[data['shareGroups'][j]];
                     file = new File(file.name, file.fileType, current_client, group);
                 }
             };
-        } else {
-            file.client.removeFile(file);
-            delete file;
+        } else {             
+            var f = current_client.files[data['id']];            
+            if (f) {
+                f.client.removeFile(f);
+                delete f;
+                response['removed'] = true;
+            }            
         }
 
         socket.emit('updateFileWithShareGroupResponse', response);
@@ -176,7 +190,7 @@ io.on('connection', function(socket) {
     socket.on('getShareGroupsForFile', function(data) {
         var response = {
             'file': {},
-            'shareGroups': []
+            'shareGroups': []            
         };
         var getFileInfo = false;
         for (var i in shareGroups) {
@@ -225,7 +239,7 @@ io.on('connection', function(socket) {
         var s = new ShareGroup(data['name']);
         shareGroups[s.getShareGroupID()] = s;
         socket.emit('createShareGroupResponse', {
-            'sucess': true,
+            'success': true,
             'id': s.getShareGroupID()
         });
     });
@@ -260,41 +274,47 @@ io.on('connection', function(socket) {
 
     socket.on('getBrowsableFilesForUser', function(data) {
         var files = [];        
-        var c = clientsObj[data['username']];
-        c.shareGroupsThatIAmIn.forEach(function(s) {
-            for (var f in s.files) {
-                files.push({
-                        'name': s.files[f].getFileName(),
-                        'id': s.files[f].getFileID(),
-                        'user': s.files[f].client.username,
-                        'type': s.files[f].fileType,
-                        'shareGroup': {
-                            'id': s.getShareGroupID(),
-                            'name': s.getShareGroupName()
-                        }
-                    });
-                }
-        });
+        var c = clientsObj[data['username']];           
+        if (c !== undefined) {
+            c.shareGroupsThatIAmIn.forEach(function(s) {
+                for (var f in s.files) {
+                    files.push({
+                            'name': s.files[f].getFileName(),
+                            'id': s.files[f].getFileID(),
+                            'user': s.files[f].client.username,
+                            'type': s.files[f].fileType,
+                            'shareGroup': {
+                                'id': s.getShareGroupID(),
+                                'name': s.getShareGroupName()
+                            }
+                        });
+                    }
+            });
+        }
         socket.emit('getBrowsableFilesForUserResponse', files)
     });
 
     socket.on('getFilesFromUser', function(data) {        
-        var files = [];        
-        var c = clientsObj[data['username']];
-        c.shareGroupsThatIAmIn.forEach(function(s) {
-            for (var f in c.files) {
-                if (s.files[f]) {
-                    files.push({
-                        'name': s.files[f].getFileName(),
-                        'id': s.files[f].getFileID(),
-                        'shareGroup': { 
-                            'id': s.getShareGroupID(),
-                            'name': s.getShareGroupName()
-                        }
-                    });
+        var files = [];                
+        var c = clientsObj[data['username']];        
+        if (c !== undefined) {
+            c.shareGroupsThatIAmIn.forEach(function(s) {
+                console.log(s);
+                for (var f in c.files) {
+                    console.log(f);
+                    if (s.files[f]) {
+                        files.push({
+                            'name': s.files[f].getFileName(),
+                            'id': s.files[f].getFileID(),
+                            'shareGroup': { 
+                                'id': s.getShareGroupID(),
+                                'name': s.getShareGroupName()
+                            }
+                        });
+                    }
                 }
-            }
-        });                
+            });                
+        }
         socket.emit('getFilesFromUserResponse', files)
     });
 
@@ -329,17 +349,11 @@ io.on('connection', function(socket) {
 
 
     socket.on('notifyServerOfClientsFiles', function(data) {
-        var files = data['files'];
-        var cur_user = undefined;
-        for (var i = server.clients.length - 1; i >= 0; i--) {
-            if(server.clients[i].username == data['username_to_add_to']){
-                cur_user = server.clients[i];
-            }
-        };
-
+        var files = data['files'];                
+        var cur_user = clientsObj[data['username_to_add_to']];        
         if(cur_user == undefined){
             console.log("attempted to add files to user " + data['username_to_add_to'] + " which does not exist anymore!");
-            return;
+            return null;
         }
 
         if(data['shareGroups'])  {
@@ -350,7 +364,7 @@ io.on('connection', function(socket) {
             for (var i = files.length - 1; i >= 0; i--) {
                 for (var j = data['shareGroups'].length - 1; j >= 0; j--) {
                     if (shareGroups[data['shareGroups'][j]] != undefined) {
-                        group = shareGroups[data['shareGroups'][j]];
+                        group = shareGroups[data['shareGroups'][j]];                        
                         var file = new File(files[i].name, files[i].type, cur_user, group)
                     }
                 };
@@ -366,8 +380,7 @@ io.on('connection', function(socket) {
                     'name': cur_user.files[item].shareGroup.getShareGroupName()
                 }
             });
-        }
-
+        }        
         socket.emit('notifyServerOfClientsFilesResponse', file_info_to_return);
     })
 
