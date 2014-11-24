@@ -211,7 +211,7 @@ ctrl.addListeners = function(){
 	// the user presses OK or Enter and the files selected/about to be shared are shown.
 	// Then a list of all users is retrieved from the server and shown to the current user for selection (who
 	// the files are to be shared with).
-	$('#share-button').on('click', function(e) {				
+	$('#share-button, #share-button-nav').on('click', function(e) {				
 		e.preventDefault();
 		$('#add-files-dialog').click();
 		$('#add-files-dialog').change(function() {
