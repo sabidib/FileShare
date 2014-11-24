@@ -266,6 +266,26 @@ io.on('connection', function(socket) {
         socket.emit('getFilesFromShareGroupResponse', response)
     });
 
+    socket.on('getBrowsableFilesForUser', function(data) {
+        var files = [];        
+        var c = clientsObj[data['username']];
+        c.shareGroupsThatIAmIn.forEach(function(s) {
+            for (var f in s.files) {
+                files.push({
+                        'name': s.files[f].getFileName(),
+                        'id': s.files[f].getFileID(),
+                        'user': s.files[f].username,
+                        'type': s.files[f].fileType,
+                        'shareGroup': {
+                            'id': s.getShareGroupID(),
+                            'name': s.getShareGroupName()
+                        }
+                    });
+                }
+        });
+        socket.emit('getBrowsableFilesForUserResponse', files)
+    });
+
     socket.on('getFilesFromUser', function(data) {        
         var files = [];        
         var c = clientsObj[data['username']];

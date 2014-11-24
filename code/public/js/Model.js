@@ -65,6 +65,10 @@ m.getFilesFromShareGroup = function(data,callback){
 	this.socket.emit('getFilesFromShareGroup',data);	
 }
 
+m.getBrowsableFilesForUser = function(data,callback){
+	this.setCallback('getBrowsableFilesForUserResponse',callback);
+	this.socket.emit('getBrowsableFilesForUser',data);	
+}
 
 m.getFilesFromUser = function(username,callback){
 	this.setCallback('getFilesFromUserResponse',callback);

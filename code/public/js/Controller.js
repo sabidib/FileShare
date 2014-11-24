@@ -168,13 +168,8 @@ ctrl.addListeners = function(){
 
 	$('body').on('show.bs.tab','a[data-toggle="tab"]',function(e){
 		if($(e.target).attr('href') == "#browsing"){
-			controller.model.getShareGroupsForUser(controller.current_username,function(data){
-				$("#streamable-files").html("");
-				for (var i = data.length - 1; i >= 0; i--) {
-					controller.fileBrowser.showFilesFromShareGroup(data[i].id,100);
-				};
-
-			});
+			$("#streamable-files").html("");
+			controller.fileBrowser.showFilesForUser(localStorage.getItem('username'));	
 		} else if($(e.target).attr('href') == "#shareGroups"){
 			controller.updateSharingTab();
 		}

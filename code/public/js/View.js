@@ -134,13 +134,28 @@ v.showUsernameAlreadyBeingUsed = function(){
 v.showAvailableFilesToStream = function(data) {		
 	if (Object.keys(data).length > 0) {			
 		htmlString = "<table><thead><th>Filename</th><th>Share Group</th><th>Download</th><th>Stream</th></thead><tbody>";	
-		$.each(data, function(i, f) {		
-			htmlString += "<tr><td>" + f.name + "<br><progress id='progress-bar' data-file-id='"+f.id+"' max='100' value='0' style='display:none;'></progress>"
-			htmlString += "</td><td>" + f.shareGroup.name +  "</td>";
-			htmlString += "<td><button class='download-button' name='" + f.name + "'data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>Download</button></td>";			
-			console.log(f);
-			if (f.type == 'audio/mp3' || f.type == 'video/mp4') {
-				htmlString += "<td><button class='stream-button' data-file-id='"+f.id+"' data-share-group-id='"+f.shareGroup.id+"'>Stream</button></td></tr>";
+		var shareGroups = {};
+		var fileIDs = {};		
+		var shareGroupIDs = {};
+		var file_names = [];
+		var file_types = {};
+		$.each(data, function(i, f) {					
+			if (!shareGroups[f.name]) {
+				shareGroups[f.name] = [];				
+				file_names.push(f.name);				
+				fileIDs[f.name] = f.id;
+				file_types[f.name] = f.type;
+			}			
+			shareGroups[f.name].push(f.shareGroup.name);
+			shareGroupIDs[f.shareGroup.name] = f.shareGroup.id;
+		});
+		file_names.sort();
+		file_names.forEach(function (f) {
+			htmlString += "<tr><td>" + f + "<br><progress id='progress-bar' data-file-id='"+fileIDs[f]+"' max='100' value='0' style='display:none;'></progress>"
+			htmlString += "</td><td>" + shareGroups[f].join(', ') +  "</td>";
+			htmlString += "<td><button class='download-button' name='" + f + "'data-file-id='"+fileIDs[f]+"' data-share-group-id='"+shareGroupIDs[shareGroups[f][0]]+"'>Download</button></td>";				
+			if (file_types[f] == 'audio/mp3' || file_types[f] == 'video/mp4') {
+				htmlString += "<td><button class='stream-button' data-file-id='"+fileIDs[f]+"' data-share-group-id='"+shareGroupIDs[shareGroups[f][0]]+"'>Stream</button></td></tr>";
 			}			
 			else {
 				htmlString += "<td></td></tr>"
