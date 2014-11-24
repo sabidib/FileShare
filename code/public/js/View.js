@@ -52,11 +52,19 @@ v.showMustAddUsernamesForCreateShareGroup = function(){
 
 
 v.updateCurrentShareGroupTable = function(groups){
-	var list = $('#shareGroups #shareGroupList');
-	list.empty();
-	for (var i = groups.length - 1; i >= 0; i--) {
-		list.append("<li data-id-share-group-id='"+groups[i]['id']+"'>" + groups[i]['name'] + "</li>");
-	};	
+	htmlString = "";
+	if (groups.length > 0){		
+		htmlString += "<table><thead><th>Name</th><th>Users</th></thead><tbody>"		
+		for (var i = groups.length - 1; i >= 0; i--) {
+			console.log(groups[i]);
+			htmlString += "<tr><td>" + groups[i]['name'] + "</td><td>" + groups[i]['users'].join(', ') +"</td></tr>";
+		};	
+		htmlString += "</tbody></table>";
+	}	
+	else {
+		htmlString += "You are not part of any share groups."
+	}
+	$('#shareGroupList').html(htmlString);
 }
 v.showShareGroupsOnlineToChooseFrom = function(shareGroup, selectedShareGroups){
 	$('#shareGroupChoosingModal').modal('show');	

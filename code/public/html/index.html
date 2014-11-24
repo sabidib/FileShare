@@ -61,7 +61,7 @@
                     <a id="logout-button" class="btn btn-dark btn-lg">Logout</a>
                     <br>
                     <br>
-                    <a id="create-sharegroup-button" class="btn btn-dark btn-lg">Create a share group</a>
+                    <a id="shareGroupCreation" class="btn btn-dark btn-lg">Create a share group</a>
                     <input id="add-files-dialog" type="file" name="files[]" multiple>
                 </div>
             </header>
@@ -126,8 +126,7 @@
 
           <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active"><a href="#sharing" aria-controls="Sharing" role="tab" data-toggle="tab">Sharing</a></li>
-            <li role="presentation"><a href="#browsing" aria-controls="Browsing" role="tab" data-toggle="tab">Browsing</a></li>
-            <li role="presentation"><a href="#streaming" aria-controls="Streaming" role="tab" data-toggle="tab">Streaming/Downloading</a></li>
+            <li role="presentation"><a href="#browsing" aria-controls="Browsing" role="tab" data-toggle="tab">Browsing</a></li>           
             <li role="presentation"><a href="#shareGroups" aria-controls="ShareGroups" role="tab" data-toggle="tab">Share Groups</a></li>
           </ul>
 
@@ -139,8 +138,7 @@
                             <div class="col-lg-12 text-center">
                                 <h2>You are sharing:</h2>
                                 <div id="shared-files">
-                                    
-
+                                    No files being shared at this moment.
                                 </div>
                             </div>
                         </div>
@@ -153,16 +151,8 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-lg-12 text-center">
-                                <h2>You can download or stream:</h2>
-                                <progress id='progress-bar' max='100' value='0' style='display:none;'></progress>
-                                <div>
-                                    <table><thead><th>Filename</th><th>Share Group</th><th>Download</th><th>Stream</th></thead><tbody id="streamable-files">
-
-
-
-
-
-                                    </tbody></table>
+                                <h2>You can download or stream:</h2>                                
+                                <div id="streamable-files">                                    
                                 </div>
                             </div>
                         </div>
@@ -170,46 +160,22 @@
                     </div>                   
 
 
-                </div>
-                <div role="tabpanel" class="tab-pane" id="streaming">
+                </div>              
                     
-                    <div style="border:1px;">
-                    Current audio file:  <span id="audioFileNameHolder"></span> <br>
-                      <audio controls id="audioFile">
-                      </audio>
-                    </div>
-                    <br>
-
-                    Current video file : <span id="videoFileNameHolder"></span> <br>
-                    <div style="border:1px;">
-                      <video id="videoFile" controls>
-                      </video>
-                    </div>
-
-                    <img id="imageFile"/>
-
-                </div>
+                 
+        
+                
                 <div role="tabpanel" class="tab-pane" id="shareGroups">
-                    <div class="col-lg-2 text-center" id='shareGroupCreateDiv'>
-                            <h3>Create a share group</h3>
-                                <button type="button" id="shareGroupCreation" class="btn btn-primary">
-                                    Create Share Group
-                                </button>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-12 text-center" id='shareGroupCreateDiv'>
+                                <h2>You are a part of these share groups:</h2>                                
+                                <div id="shareGroupList">                                    
+                                </div>                            
                             </div>
+                        </div>
 
-                            <div class="col-lg-2 text-center">
-                                <h3>Share groups you're part of:</h3>
-                                <div id="shareGroupList">
-                                    
-
-                                </div>
-                            </div>
-
-                            <div class="col-lg-2 text-center">
-                                <h3>Join a share group</h3>
-                                    <button type="button" id="shareGroupJoin">Open a share group</button>
-                            </div>
-
+                    </div>
                 </div>
             </div>
 
@@ -217,9 +183,12 @@
         </section>
 
 
-
-
-
+           <div id="audioFileDiv" style="border:1px;display:none;">                
+                <audio controls id="audioFile" />                
+            </div>           
+            <div id="videoFileDiv" style="border:1px;display:none;">                
+                <video id="videoFile" controls />                      
+            </div>
     </body>
 </html>
 

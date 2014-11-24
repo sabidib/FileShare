@@ -59,18 +59,51 @@ var Controller = function Controller(hostname,port){
 	            	saveData(new Blob(parts),meta.name);
 	           }
 	           else {
-		            if(meta.type == "audio/mp3") {
-		              $("#audioFileNameHolder").text(meta.name);
+		            if(meta.type == "audio/mp3") {		              		              
 		              $("#audioFile").attr("src",url);
-		              $("#audioFile").attr("type",'audio/mp3')
-		              $("#audioFile").trigger('play');
+		              $("#audioFile").attr("type",'audio/mp3')		                					    					  
+					  var html = $("#audioFileDiv").html();  					  		 
+  					  html += "<script>\nvar msg = 'Playing: " + meta.name + "';\
+  					  	\nvar pos = 0;\
+  					  	\nvar spacer = ' ... ';\
+  					  	\nvar time_length = 100;\
+  					  	\nfunction scrollTitle()\
+  					  	\n{\
+  					  	\n 	this.document.title = msg.substring(pos, msg.length) + spacer + msg.substring(0, pos);\
+  					  	\n 	pos++;\
+  					  	\n 	if (pos > msg.length) pos=0;\
+  					  	\n 	this.window.setTimeout('scrollTitle()',time_length);\
+						\n}\
+						scrollTitle()</script>";
+					  var w = window.open("","", "width=330, height=120");  
+					  w.resizeTo(330, 120);		// need to resize again because browsers have different minimum sizes
+					  w.document.write(html);
+  					  $(w.document.body).find('#audioFile').trigger('play');		              
 		            } else if(meta.type == "video/mp4") {
 		              $("#videoFileNameHolder").text(meta.name);
 		              $("#videoFile").attr("src",url);
-		              $("#videoFile").attr("type",'video/mpeg')
-		              $("#videoFile").trigger('play');
-		            } else if(meta.type.indexOf("image/") > -1){
-		              $("#imageFile").attr("src",url);
+		              $("#videoFile").attr("type",'video/mpeg')		              
+  					  var html = $("#videoFileDiv").html();  					  
+  					   html += "<script>\nvar msg = 'Playing: " + meta.name + "';\
+  					  	\nvar pos = 0;\
+  					  	\nvar spacer = ' ... ';\
+  					  	\nvar time_length = 100;\
+  					  	\nfunction scrollTitle()\
+  					  	\n{\
+  					  	\n 	this.document.title = msg.substring(pos, msg.length) + spacer + msg.substring(0, pos);\
+  					  	\n 	pos++;\
+  					  	\n 	if (pos > msg.length) pos=0;\
+  					  	\n 	this.window.setTimeout('scrollTitle()',time_length);\
+						\n}\
+						\nscrollTitle()\
+						\nvar video = document.getElementById('videoFile');\
+						\nvideo.addEventListener('loadedmetadata', function(){\
+						\n		window.resizeTo(this.videoWidth+35, this.videoHeight+85	);\
+    					\n});\
+						\n</script>";
+					  var w = window.open("", "", "width=400, height=400");
+  					  w.document.write(html);
+  					  $(w.document.body).find('#videoFile').trigger('play');  					  
 		            }
 	        	}
 				//this.binarySocket.removeAllListeners('stream');
@@ -190,7 +223,9 @@ ctrl.addListeners = function(){
 									}
 								};
 							};							
-							view.showFilesCurrentlyBeingShared(data);
+							controller.model.getFilesFromUser(localStorage.getItem('username'), function(files) {
+								view.showFilesCurrentlyBeingShared(files);					
+							});
 						});
 					})
 				} else {

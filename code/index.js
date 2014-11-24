@@ -23,6 +23,7 @@ var utils = new Utilities();
 globalShareGroup = new ShareGroup('global');
 shareGroups = {};
 shareGroups[globalShareGroup.getShareGroupID()] = globalShareGroup;
+clientsObj = {};
 
 server = new Server();
 
@@ -95,6 +96,7 @@ io.on('connection', function(socket) {
         response = {
             'success': true
         };
+        clientsObj[data['username']] = new_client;
         socket.username = data['username'];
         socket.emit('loginUserResponse', response);
     });
@@ -146,13 +148,7 @@ io.on('connection', function(socket) {
 
     socket.on('updateFileWithShareGroup', function(data) {
         var response = [];
-        var current_client = undefined;
-        for (var i = server.clients.length - 1; i >= 0; i--) {
-            if(server.clients[i].username == data['username']){
-                current_client = server.clients[i];
-            }        
-        };
-
+        var current_client = clientsObj[data['username']];
         if(current_client == undefined){
             console.log("User " + data['username'] +" disconnected!");
             return;
@@ -212,18 +208,24 @@ io.on('connection', function(socket) {
 
     socket.on('getShareGroupsForUser', function(data) {
         var response = []
-        var username = data.username;
-        for (var i = server.clients.length - 1; i >= 0; i--) {
-            if (server.clients[i].username == username) {
-                for (var j = server.clients[i].shareGroupsThatIAmIn.length - 1; j >= 0; j--) {
-                    var group = server.clients[i].shareGroupsThatIAmIn[j];
-                    response.push({
-                        'id': group.getShareGroupID(),
-                        'name': group.getShareGroupName()
+        var username = data.username;        
+        var clientObj = clientsObj[username];        
+        if (clientObj) {               
+            clientObj.shareGroupsThatIAmIn.forEach(function(group) {
+                var clientsList = [];
+                if (group.clients.length > 0){
+                    group.clients.forEach(function(c) {
+                        clientsList.push(c.username);
                     });
-                };
-            }
-        };
+                }                
+                 response.push({
+                    'id': group.getShareGroupID(),
+                    'name': group.getShareGroupName(),
+                    'users': clientsList
+                });
+            });
+        };        
+        console.log(response);
         socket.emit('getShareGroupsForUserResponse', response)
     });
 
@@ -264,27 +266,26 @@ io.on('connection', function(socket) {
         socket.emit('getFilesFromShareGroupResponse', response)
     });
 
-    socket.on('getFilesFromUser', function(data) {
-        var c;
-        var files = [];
-        for (var i = server.clients.length - 1; i >= 0; i--) {
-            if (server.clients[i].getUsername() == data['username']) {
-                c = server.clients[i];
-                break;
-            }
-        };
-        for (var item in c.files) {
-            files.push({
-                'name': c.files[item].getFileName(),
-                'id': c.files[item].getFileID(),
-                'shareGroup': {
-                    'id': c.files[item].shareGroup.getShareGroupID(),
-                    'name': c.files[item].shareGroup.getShareGroupName()
+    socket.on('getFilesFromUser', function(data) {        
+        var files = [];        
+        var c = clientsObj[data['username']];
+        c.shareGroupsThatIAmIn.forEach(function(s) {
+            for (var f in c.files) {
+                if (s.files[f]) {
+                    files.push({
+                        'name': s.files[f].getFileName(),
+                        'id': s.files[f].getFileID(),
+                        'shareGroup': {
+                            'id': s.getShareGroupID(),
+                            'name': s.getShareGroupName()
+                        }
+                    });
                 }
-            });
-        }
+            }
+        });                
         socket.emit('getFilesFromUserResponse', files)
     });
+
     socket.on('getStream', function(data) {
         var response = {
             'source': {},
