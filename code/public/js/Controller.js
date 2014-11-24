@@ -229,6 +229,7 @@ ctrl.addListeners = function(){
 				if(!named_same){
 					controller.fileSelectionModal.getShareGroupsToShareWith(files,function(data){
 						toSend = {'files' : files, 'shareGroups' : data['shareGroups'],'username_to_add_to': controller.current_username};
+						console.log(files);
 						controller.model.notifyServerOfClientsFiles(toSend,function(data){
 							//We match files we're sharing by name and associate them with the server ID
 							for (var i = data.length - 1; i >= 0; i--) {

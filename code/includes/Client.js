@@ -37,6 +37,7 @@ Client.prototype.addFile = function(file){
 }
 
 Client.prototype.removeFile = function(file){
+	this.files[file.getFileID()] = null;
 	delete this.files[file.getFileID()];
 }
 
