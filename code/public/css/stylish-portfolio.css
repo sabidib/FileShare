@@ -162,6 +162,44 @@ hr.small {
     -o-background-size: cover;
 }
 
+#sharedFilesSection {
+    display: table;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: url(../img/bg2.jpg) no-repeat center center scroll;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+}
+
+#streamFilesSection {
+    display: table;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: url(../img/bg3.jpg) no-repeat center center scroll;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+}
+
+#shareGroupsSection {
+    display: table;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: url(../img/bg4.jpg) no-repeat center center scroll;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+}
+
+
+
 /* Files */
 
 .files {

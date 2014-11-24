@@ -12,17 +12,21 @@ v.showLoginForm = function(container){
 
 v.showMainPage = function(username){
 	if(username) {
-		$('#loginContainer').hide();
-		$('#mainContainer').show();
-		$('#files').show();
+		$('#loginContainer').fadeOut(500, function() {
+			$('#mainContainer').fadeIn(500, function() {
+				$('#contentSections').fadeIn(500);
+			})
+		});				
 		$('.usernameBlank').html(username);
 	}
 	else {
-		$('#loginContainer').show();
-		$('#mainContainer').hide();
-		$('#files').hide();
+		$('#loginContainer').fadeIn(500, function() {
+			$('#mainContainer').hide();
+			$('#contentSections').hide();			
+		});		
 		$('.usernameBlank').html();	
 	}
+	$('#refreshButton').click();
 }
 
 v.showFilesAboutToShare = function(files) {	
@@ -193,13 +197,13 @@ v.showFilesCurrentlyBeingShared = function(data) {
 			htmlString += "<td><button class='edit-file-button' data-file-id='" + fileIDs[f] + "'>Edit</button></td></tr>"
 		});		
 
-		htmlString += "</tbody></table>";	
+		htmlString += "</tbody></table>";			
 	}
 	else {
 		htmlString += "No files being shared at this moment."
 	}
 	$('#shared-files').html(htmlString);	
-	$('#sharing-table').DataTable();
+	$('#sharing-table').DataTable();	
 };
 
 

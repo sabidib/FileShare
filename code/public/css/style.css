@@ -30,12 +30,9 @@ table {
 	-webkit-box-shadow: 0 1px 2px #d1d1d1;
 	box-shadow: 0 1px 2px #d1d1d1;
 }
-table th {
-	padding:21px 25px 22px 25px;
-	border-top:1px solid #fafafa;
-	border-bottom:1px solid #e0e0e0;
+table th {	
 	text-align: center;
-	background: #ededed;
+	background: #ededed !important;
 	background: -webkit-gradient(linear, left top, left bottom, from(#ededed), to(#ebebeb));
 	background: -moz-linear-gradient(top,  #ededed,  #ebebeb);
 }
@@ -95,6 +92,9 @@ table tr:hover td {
 	background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#f0f0f0));
 	background: -moz-linear-gradient(top,  #f2f2f2,  #f0f0f0);	
 }
+
+
+
 #add-files-dialog {
 	opacity: 0;
 	-moz-opacity: 0;
@@ -135,8 +135,9 @@ table tr:hover td {
 	letter-spacing: 0.125em;
 }
 
-h2 {
-	font-size: 1.5em;
+h2 {	
+	font-size: 4.5em !important;
+	font-weight: 700 !important;
 	line-height: 1.5em;
 }
 

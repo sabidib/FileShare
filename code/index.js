@@ -261,41 +261,45 @@ io.on('connection', function(socket) {
 
     socket.on('getBrowsableFilesForUser', function(data) {
         var files = [];        
-        var c = clientsObj[data['username']];
-        c.shareGroupsThatIAmIn.forEach(function(s) {
-            for (var f in s.files) {
-                files.push({
-                        'name': s.files[f].getFileName(),
-                        'id': s.files[f].getFileID(),
-                        'user': s.files[f].client.username,
-                        'type': s.files[f].fileType,
-                        'shareGroup': {
-                            'id': s.getShareGroupID(),
-                            'name': s.getShareGroupName()
-                        }
-                    });
-                }
-        });
+        var c = clientsObj[data['username']];        
+        if (c !== undefined) {
+            c.shareGroupsThatIAmIn.forEach(function(s) {
+                for (var f in s.files) {
+                    files.push({
+                            'name': s.files[f].getFileName(),
+                            'id': s.files[f].getFileID(),
+                            'user': s.files[f].client.username,
+                            'type': s.files[f].fileType,
+                            'shareGroup': {
+                                'id': s.getShareGroupID(),
+                                'name': s.getShareGroupName()
+                            }
+                        });
+                    }
+            });
+        }
         socket.emit('getBrowsableFilesForUserResponse', files)
     });
 
     socket.on('getFilesFromUser', function(data) {        
         var files = [];        
         var c = clientsObj[data['username']];
-        c.shareGroupsThatIAmIn.forEach(function(s) {
-            for (var f in c.files) {
-                if (s.files[f]) {
-                    files.push({
-                        'name': s.files[f].getFileName(),
-                        'id': s.files[f].getFileID(),
-                        'shareGroup': { 
-                            'id': s.getShareGroupID(),
-                            'name': s.getShareGroupName()
-                        }
-                    });
+        if (c !== undefined) {
+            c.shareGroupsThatIAmIn.forEach(function(s) {
+                for (var f in c.files) {
+                    if (s.files[f]) {
+                        files.push({
+                            'name': s.files[f].getFileName(),
+                            'id': s.files[f].getFileID(),
+                            'shareGroup': { 
+                                'id': s.getShareGroupID(),
+                                'name': s.getShareGroupName()
+                            }
+                        });
+                    }
                 }
-            }
-        });                
+            });                
+        }
         socket.emit('getFilesFromUserResponse', files)
     });
 
