@@ -9,7 +9,8 @@ var Controller = function Controller(hostname,port){
 	this.setupSocketIO();
 	this.setupBinary(hostname,port);
 	console.log(hostname + " " + port)
- 
+ 	this.hostname = hostname;
+ 	this.port = port;
 	this.current_username = "";
 
 	model = new Model(this.socket,this.binarySocket);
@@ -264,8 +265,8 @@ ctrl.addListeners = function(){
 		var file_id = $(this).attr('data-file-id');			
 		var share_group_id = $(this).attr('data-share-group-id');
 		var req = new StreamRequest(username,file_id);
-		controller.model.getStream({'request' : req , 'share_group_id' : share_group_id} ,function(data){
-			console.log(data);
+		
+		controller.model.getStream({'request' : req , 'share_group_id' : share_group_id} ,function(data){			
 			if (data['success']) {
 				var stream = new Stream(data.source,data.destination,data.file_id,false);
 				controller.startStreaming(stream);
@@ -293,11 +294,6 @@ ctrl.addListeners = function(){
 		});
 	});
 
-	window.onbeforeunload = function (e) {
-		console.log("CLOSING");
-		this.binarySocket.emit('error', 'disconnecting');
-	  	this.binarySocket.close();
-	};
 	$('#logout-button').on('click', function(e) {		
 		e.preventDefault();				
 		var username = localStorage.getItem('username');					

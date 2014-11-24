@@ -55,7 +55,6 @@ io.on('connection', function(socket) {
         if(current_client != undefined){
             console.log(current_client);
             current_client.disconnectAllShareGroups();            
-            current_client.binarySocket.close();
             current_client.removeAllFiles();
             server.removeClient(current_client);
         }
