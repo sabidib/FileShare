@@ -58,12 +58,12 @@ asyncTest("Tests for SEG2105 Project", function( assert ) {
   		equal(data[0]['name'], 'style.css', "A user successfully accessed another user's uploaded file.");
   });  
 
-   // remove a file  (todo)
+/*   // remove a file  (todo)
   var fileData = {'id':'da232d78aa810382f2dcdceae308ff8e', 'shareGroups':[],'username' : 'testingThisUsername'};
   m.updateFileWithShareGroup(fileData, function(d) {  		
   		equal(d['removed'], true, "Successfully removed a file.");  		
   });  
-
+*/
   // logout testing user
   m.logoutUser("testingThisUsername", function(data) {		  		
   		equal(data['success'], true, "Successfully logged out with arbitrary user.");		  		

@@ -167,7 +167,7 @@ io.on('connection', function(socket) {
             }
         }        
         //add to new share groups (if any)
-        if (data['shareGroups'].length > 0) {
+        if (data['shareGroups']) {
             for (var j = data['shareGroups'].length - 1; j >= 0; j--) {
                 if (shareGroups[data['shareGroups'][j]] != undefined) {
                     group = shareGroups[data['shareGroups'][j]];
