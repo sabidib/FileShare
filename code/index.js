@@ -50,18 +50,12 @@ app.get('/', function(req, res) {
 
 io.on('connection', function(socket) {
 
-    socket.on('disconnect', function(socket_dc) {
-        console.log(socket);
-        console.log(socket.username);
-        var current_client = undefined;
-        for (var i = server.clients.length - 1; i >= 0; i--) {
-            if(server.clients[i].username == socket.username){
-                current_client = server.clients[i];
-            }
-        };
+    socket.on('disconnect', function(socket_dc) {        
+        var current_client = clientsObj[socket.username];        
         if(current_client != undefined){
             console.log(current_client);
-            current_client.disconnectAllShareGroups();
+            current_client.disconnectAllShareGroups();            
+            current_client.binarySocket.close();
             current_client.removeAllFiles();
             server.removeClient(current_client);
         }
@@ -274,7 +268,7 @@ io.on('connection', function(socket) {
                 files.push({
                         'name': s.files[f].getFileName(),
                         'id': s.files[f].getFileID(),
-                        'user': s.files[f].username,
+                        'user': s.files[f].client.username,
                         'type': s.files[f].fileType,
                         'shareGroup': {
                             'id': s.getShareGroupID(),
@@ -295,7 +289,7 @@ io.on('connection', function(socket) {
                     files.push({
                         'name': s.files[f].getFileName(),
                         'id': s.files[f].getFileID(),
-                        'shareGroup': {
+                        'shareGroup': { 
                             'id': s.getShareGroupID(),
                             'name': s.getShareGroupName()
                         }
@@ -308,6 +302,7 @@ io.on('connection', function(socket) {
 
     socket.on('getStream', function(data) {
         var response = {
+            'success':false,
             'source': {},
             'destination': {},
             'file_id': {}
@@ -317,10 +312,14 @@ io.on('connection', function(socket) {
         var group_id = data.share_group_id;
 
         var requested_file = getFileByIDFromShareGroupID(group_id, file_id);
-        console.log(requested_file);
-        response.source = requested_file.client.username;
-        response.destination = data.destination_username;
-        response.file_id = file_id;
+        if (requested_file) {
+            if (requested_file.client) {            
+                response.success = true;
+                response.source = requested_file.client.username;
+                response.destination = data.destination_username;
+                response.file_id = file_id;
+            }
+        }
 
         message = "Connected stream for file:" + response.file_id + " with destination " + response.destination +" and source " + response.source;
 
@@ -345,19 +344,20 @@ io.on('connection', function(socket) {
             return;
         }
 
+        if(data['shareGroups'])  {
+            for (var i = data['shareGroups'].length - 1; i >= 0; i--) {
+                cur_user.addShareGroup(shareGroups[data['shareGroups'][i]]);
+            };     
 
-        for (var i = data['shareGroups'].length - 1; i >= 0; i--) {
-            cur_user.addShareGroup(shareGroups[data['shareGroups'][i]]);
-        };
-
-        for (var i = files.length - 1; i >= 0; i--) {
-            for (var j = data['shareGroups'].length - 1; j >= 0; j--) {
-                if (shareGroups[data['shareGroups'][j]] != undefined) {
-                    group = shareGroups[data['shareGroups'][j]];
-                    var file = new File(files[i].name, files[i].type, cur_user, group)
-                }
+            for (var i = files.length - 1; i >= 0; i--) {
+                for (var j = data['shareGroups'].length - 1; j >= 0; j--) {
+                    if (shareGroups[data['shareGroups'][j]] != undefined) {
+                        group = shareGroups[data['shareGroups'][j]];
+                        var file = new File(files[i].name, files[i].type, cur_user, group)
+                    }
+                };
             };
-        };
+        }
         file_info_to_return = [];
         for (var item in cur_user.files) {
             file_info_to_return.push({
@@ -381,13 +381,7 @@ io.on('connection', function(socket) {
 
         utils.logInfo("notifySourceToStartStream","Stream to start is " + JSON.stringify(stream))
 
-        source_client = undefined;
-        for (var i = server.clients.length - 1; i >= 0; i--) {
-            if (server.clients[i].username == stream.source) {
-                source_client = server.clients[i];
-                break;
-            }
-        };
+        source_client = clientsObj[stream.source];        
         if (source_client == undefined) {
             //Fail!!
             console.log("FAILED!");
@@ -399,7 +393,7 @@ io.on('connection', function(socket) {
             "file_id": stream.file_id,
             "destination": stream.destination,
             "download": stream.download
-        });
+        });      
         response['success'] = true;
         response['message'] = "Started stream";
 
@@ -477,25 +471,14 @@ binaryServer.on('connection', function(c) {
     c.on('stream', function(stream, meta) {
         // Supa hacks
         if (meta['username_get_socket'] != undefined) {
-            for (var i = server.clients.length - 1; i >= 0; i--) {
-                if(server.clients[i].username == meta['username_get_socket']){
-                    server.clients[i].binarySocket = c;
-                    console.log(server.clients[i].username +" had their binarySocket set.");
-                    break;
-                }
-            };
+            clientsObj[meta['username_get_socket']].binarySocket = c;
+            console.log(meta['username_get_socket'] +" had their binarySocket set.");            
         } else {
 
             var destination = meta.destination;
 
             var client_object_destination = {};
-
-            for (var i = server.clients.length - 1; i >= 0; i--) {
-                if (server.clients[i].username == destination) {
-                    client_object_destination = server.clients[i];
-                }
-            };
-
+            client_object_destination = clientsObj[destination];
             client_object_destination.binarySocket.send(stream, meta);
 
             stream.on('data', function(data) {

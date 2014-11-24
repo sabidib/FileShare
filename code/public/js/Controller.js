@@ -31,12 +31,18 @@ var Controller = function Controller(hostname,port){
           var parts = [];
           // Got new data
           var tx = 0;
-          stream.on('data', function(data){            
+          stream.on('data', function(data){                     	
             parts.push(data);                 
             tx += data.byteLength / meta.size;           	
             $("#progress-bar[data-file-id='"+meta['file_id']+"']").val(Math.round(tx*100));            
+          });     
+          stream.on('close', function(e) {          	  
+          	  $("#progress-bar[data-file-id='"+meta['file_id']+"']").hide();
+          	  $('#inCaseClose-'+meta['file_id']).html('<strong>User has disconnected or file no longer exists. Refreshing tabs...</strong>');
+          	  setTimeout(function() {   //calls click event after a certain time
+   					$('#refreshButton').click();
+			  }, 2000);          	  
           });
-
           stream.on('end', function(){          		
 	            $("#audioFile").trigger('stop');
 	            $("#videoFile").trigger('stop');
@@ -164,6 +170,16 @@ ctrl.addListeners = function(){
 		}
 
 	});
+	$('body').on('click','#refreshButton',function(e){
+		// update everything
+		$("#streamable-files").html("");
+		controller.fileBrowser.showFilesForUser(localStorage.getItem('username'));	
+		controller.updateSharingTab();
+		controller.model.getFilesFromUser(localStorage.getItem('username'), function(files) {
+			view.showFilesCurrentlyBeingShared(files);					
+		});
+	})
+
 
 
 	$('body').on('show.bs.tab','a[data-toggle="tab"]',function(e){
@@ -249,8 +265,15 @@ ctrl.addListeners = function(){
 		var share_group_id = $(this).attr('data-share-group-id');
 		var req = new StreamRequest(username,file_id);
 		controller.model.getStream({'request' : req , 'share_group_id' : share_group_id} ,function(data){
-			var stream = new Stream(data.source,data.destination,data.file_id,false);
-			controller.startStreaming(stream);
+			console.log(data);
+			if (data['success']) {
+				var stream = new Stream(data.source,data.destination,data.file_id,false);
+				controller.startStreaming(stream);
+			}
+			else {
+				alert('User disconnected or file no longer exists.');
+				$('#refreshButton').click();
+			}
 		});
 	});
 	$('body').on('click',".download-button",function(e){
@@ -258,11 +281,23 @@ ctrl.addListeners = function(){
 		var share_group_id = $(this).attr('data-share-group-id');
 		var req = new StreamRequest(username,file_id);
 		controller.model.getStream({'request' : req , 'share_group_id' : share_group_id} ,function(data){
-			var stream = new Stream(data.source,data.destination,data.file_id, true);
-			controller.startStreaming(stream);
+			console.log(data);
+			if (data['success']) {
+				var stream = new Stream(data.source,data.destination,data.file_id,true);
+				controller.startStreaming(stream);
+			}
+			else {
+				alert('User disconnected or file no longer exists.');
+				$('#refreshButton').click();
+			}
 		});
 	});
 
+	window.onbeforeunload = function (e) {
+		console.log("CLOSING");
+		this.binarySocket.emit('error', 'disconnecting');
+	  	this.binarySocket.close();
+	};
 	$('#logout-button').on('click', function(e) {		
 		e.preventDefault();				
 		var username = localStorage.getItem('username');					

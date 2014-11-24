@@ -15,8 +15,7 @@ fbr.showFilesFromShareGroup = function(shareGroupID,amount){
 
 
 fbr.showFilesForUser = function(username){
-	this.model.getBrowsableFilesForUser({'username': username},function(files){
-		console.log(files);
+	this.model.getBrowsableFilesForUser({'username': username},function(files){		
 		view.showAvailableFilesToStream(files);
 	});
 }

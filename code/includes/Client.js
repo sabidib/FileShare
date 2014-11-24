@@ -17,7 +17,8 @@ var Client = function Client(username,server,socket,session){
 	this.session = session;
 	this.server.addClient(this);
 	this.addShareGroup(globalShareGroup);	
-	this.files = {}
+	this.files = {};	
+	this.binarySocket = null;
 }
 
 
