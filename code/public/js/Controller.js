@@ -174,6 +174,7 @@ ctrl.addListeners = function(){
 	$('body').on('click','#refreshButton',function(e){
 		// update everything
 		$("#streamable-files").html("");
+		controller.binarySocket.emit('close');
 		controller.fileBrowser.showFilesForUser(localStorage.getItem('username'));	
 		controller.updateSharingTab();
 		controller.model.getFilesFromUser(localStorage.getItem('username'), function(files) {

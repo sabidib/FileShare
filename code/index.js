@@ -28,7 +28,6 @@ clientsObj = {};
 server = new Server();
 
 var session = {};
-var client = {};
 
 app.use(express.static(__dirname + '/public'));
 
