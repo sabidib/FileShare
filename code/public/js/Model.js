@@ -59,12 +59,6 @@ m.notifyServerOfClientsFiles = function(data,callback){
 	this.socket.emit('notifyServerOfClientsFiles',data);		
 }
 
-
-m.getFilesFromShareGroup = function(data,callback){
-	this.setCallback('getFilesFromShareGroupResponse',callback);
-	this.socket.emit('getFilesFromShareGroup',data);	
-}
-
 m.getBrowsableFilesForUser = function(data,callback){
 	this.setCallback('getBrowsableFilesForUserResponse',callback);
 	this.socket.emit('getBrowsableFilesForUser',data);	

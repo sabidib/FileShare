@@ -28,24 +28,6 @@ var File = function File(name, fileType, client, shareGroup) {
 //File.prototype = Object.create(NetworkFileSystemNode.prototype); 		// inherit from NetworkFileSystemNode
 File.prototype.constructor = File;					// change constructor from NetworkFileSystemNode's constructor to File's constructor
 
-
-File.prototype.getFileID = function(){
-	return this.id;
-}
-
-File.prototype.getFileName = function(){
-	return this.name;
-}
-
-/**
-* Set the shareGroup for this file and add it as a client.
-* @param {ShareGroup} shareGroup The group this file is to be shared with.
-*/
-File.prototype.setShareGroup = function(shareGroup) {
-	shareGroup.addFile(this);
-	this.shareGroup = shareGroup;
-}
-
 File.prototype.deleteFile = function(){
 	this.shareGroup.removeFile(this);
 	this.client.removeFile(this);

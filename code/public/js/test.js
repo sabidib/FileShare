@@ -4,7 +4,7 @@ localStorage.removeItem("username");
 
 
 asyncTest("Tests for SEG2105 Project", function( assert ) {
-  expect( 12 );      	
+  expect( 11 );      	  
   m.getFilesFromUser("!!@#SDRY%^*^DFGSD@#A", function(data) {
   		equal(data.length, 0, "Returns no files when requesting from non-existent user.");  		  		
    });
@@ -47,23 +47,17 @@ asyncTest("Tests for SEG2105 Project", function( assert ) {
   	equal(data[0].name, 'style.css', "Successfully retrieve previously uploaded file.");
   });
 
-  // update file share groups
-  var data = {'id':'da232d78aa810382f2dcdceae308ff8e', 'shareGroups':['0','1'],'username' : 'testingThisUsername'};
-  m.updateFileWithShareGroup(data, function(data) {
-  		equal(data['removed'], false, "Successfully updated share group for a file.");
-  });
-
   // check if user 2 can access user 1's file
   m.getBrowsableFilesForUser({'username':"testingThisUsername2"}, function(data) {  		
   		equal(data[0]['name'], 'style.css', "A user successfully accessed another user's uploaded file.");
   });  
 
-/*   // remove a file  (todo)
-  var fileData = {'id':'da232d78aa810382f2dcdceae308ff8e', 'shareGroups':[],'username' : 'testingThisUsername'};
+  // remove a file  (todo)
+  var fileData = {'id':'da232d78aa810382f2dcdceae308ff8e', 'shareGroups':[],'username' : 'testingThisUsername'};  
   m.updateFileWithShareGroup(fileData, function(d) {  		
   		equal(d['removed'], true, "Successfully removed a file.");  		
   });  
-*/
+
   // logout testing user
   m.logoutUser("testingThisUsername", function(data) {		  		
   		equal(data['success'], true, "Successfully logged out with arbitrary user.");		  		

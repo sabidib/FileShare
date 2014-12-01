@@ -5,8 +5,8 @@
 
 var ShareGroup = function ShareGroup(name) {
 	this.files = {};
-	this.name = name;
-	this.clients = [];
+	this.clients = {};
+	this.name = name;	
 	this.numberOfClients = 0;
 	this.numberOfFiles = 0;
 	this.shareGroupID = this.getNewShareGroupIDFromServer();
@@ -21,57 +21,43 @@ ShareGroup.prototype.getNewShareGroupIDFromServer = function(){
 	return tmp;
 }
 
-ShareGroup.prototype.getShareGroupID = function() {
-	return this.shareGroupID;
-}
-ShareGroup.prototype.getShareGroupName = function(){
-	return this.name;
-}
-
 ShareGroup.prototype.removeFile = function(file){
-	delete this.files[file.getFileID()];
+	this.files[file.id] = null;
+	delete this.files[file.id];
 }
 
 ShareGroup.prototype.addFile = function(file){
-	if(this.files[file.getFileID()] == undefined){
-		this.files[file.getFileID()] = file;
-		return true;
+	if(file.id in this.files) {
+		return false;		
 	}  else {
-		return false;
+		this.files[file.id] = file;
+		return true;
 	}
 }
 
-/**
-* Add a client to the clients list.
-* 
-* @param {Client} client The client to be added to the clients list.
-*/
-ShareGroup.prototype.addClient = function (aClient) {
-    var wasAdded = false;
-    for(var  i=0; i < this.clients.length;i++){
-    	if(this.clients[i].getUsername() == aClient.getUsername()){
-    		return false;
-    	}
+ShareGroup.prototype.addClient = function (client) {
+     if (client.username in this.clients) {
+        return false;
     }
-	this.clients.push(aClient);
-	aClient.addShareGroup(this);
+    else {
+        this.clients[client.username] = client;           
+        client.addShareGroup(this);
+        return true;
+    }	
 };
 
-ShareGroup.prototype.removeClient = function(aClient){
-    for(var  i=0; i < this.clients.length;i++){
-    	if(this.clients[i].getUsername() == aClient.getUsername()){
-    		for(var j in this.files){
-    			if(this.files[j].client.username == aClient.getUsername()){
-    				console.log("Removing file " + this.files[j].name)
-    				delete this.files[j];
-    			} 
-    		}
-    		this.clients.splice(i,1);
-    		aClient.removeShareGroup(this);
-    		console.log(this.files);
-    		return false;
+ShareGroup.prototype.removeClient = function(client){
+    if (client.username in this.clients) {    	
+    	for(var j in this.files){
+    		if(this.files[j].client.username == client.username){
+    			console.log("Removing file " + this.files[j].name)
+    			delete this.files[j];
+    		} 
     	}
+    	client.removeShareGroup(this);
+    	return true;
     }
+    return false;    	    
 }
 
 ShareGroup.prototype.getNumberOfClients = function(){

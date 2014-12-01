@@ -27,18 +27,18 @@ Client.prototype.constructor = Client;
 
 
 Client.prototype.addFile = function(file){
-	if(this.files[file.getFileID()] == undefined){
-		this.files[file.getFileID()] = file;
-		return true;
-	}  else {
+	if(file.id in this.files){		
 		return false;
+	}  else {
+		this.files[file.id] = file;
+		return true;
 	}
 
 }
 
 Client.prototype.removeFile = function(file){
-	this.files[file.getFileID()] = null;
-	delete this.files[file.getFileID()];
+	this.files[file.id] = null;
+	delete this.files[file.id];
 }
 
 

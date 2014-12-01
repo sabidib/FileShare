@@ -6,14 +6,6 @@ var FileBrowser = function FileBrowser(model,view){
 
 fbr = FileBrowser.prototype;
 
-
-fbr.showFilesFromShareGroup = function(shareGroupID,amount){
-	this.model.getFilesFromShareGroup({'id' : shareGroupID, 'amount':amount},function(data){
-		view.showAvailableFilesToStream(data['files']);
-	});
-}
-
-
 fbr.showFilesForUser = function(username){
 	this.model.getBrowsableFilesForUser({'username': username},function(files){		
 		view.showAvailableFilesToStream(files);
