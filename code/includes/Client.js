@@ -1,8 +1,10 @@
-var NetworkFileSystemNode = require('./NetworkFileSystemNode.js');
 var ShareGroup = require('./ShareGroup.js');
 var Server = require('./Server.js');
 var Session = require('./Session.js');
-
+/**
+ * The client object represents a client.
+ * It contains all the information related to the client.
+ */
 
 
 

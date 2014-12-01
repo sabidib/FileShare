@@ -109,7 +109,6 @@ io.on('connection', function(socket) {
     });
 
     socket.on('getUsersOnline', function(data) {
-        //todo: make sure it's valid user that has been authenticated
         var response = {
             'users': []
         }
@@ -123,7 +122,6 @@ io.on('connection', function(socket) {
 
 
     socket.on('getAllShareGroups', function(data) {
-        //todo: make sure it's valid user that has been authenticated
         var response = {
             'shareGroups': []
         }
@@ -364,8 +362,6 @@ io.on('connection', function(socket) {
 
         utils.logInfo("notifySourceToStartStream","Stream to start is " + JSON.stringify(stream))        
         if (!server.userExists(stream.source)) {
-            //Fail!!
-            console.log("FAILED!");
             response['message'] = "Could not find source client. They may have disconnected.";
             socket.emit('notifySourceToStartStreamReponse', response)
             return;
@@ -430,7 +426,6 @@ var binaryServer = BinaryServer({
 binaryServer.on('connection', function(c) {
     // Incoming stream from browser
     c.on('stream', function(stream, meta) {
-        // Supa hacks
         if (meta['username_get_socket'] != undefined) {
             if (server.userExists(meta['username_get_socket'])) {
                 server.clients[meta['username_get_socket']].binarySocket = c;
