@@ -1,0 +1,51 @@
+
+class Controller{
+	singleton;
+	lazy socket binarySocket;
+	lazy socket socket;
+	lazy String hostname;
+	lazy String port;
+	lazy String currentUsername;
+
+	lazy String[] files_currently_sharing;
+	1 -> 1 View;
+	1 -> 1 Model;
+
+	1 -> 1 ShareGroupCreationModal;
+	1 -> 1 ShareGroupModal;
+
+}
+
+class Modal {
+	1 -> 1 Model;
+	1 -> 1 View;
+}
+
+class ShareGroupCreationModal {
+	isA Modal;
+}
+
+class ShareGroupModal {
+	isA Modal;
+}
+
+class StreamRequest {
+	String streamRequestSource; 
+	String fileID;
+}
+
+
+class View {
+	singleton;	
+}
+
+class Model{
+	singleton;	
+}
+class Stream {
+	String source;
+	String destination;
+	String fileID;
+	String download;
+}
+
