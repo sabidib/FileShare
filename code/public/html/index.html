@@ -6,26 +6,28 @@
         <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="/css/stylish-portfolio.css">
         <link rel="stylesheet" type="text/css" href="/css/bootstrap-duallistbox.css">        
-        <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.4/css/jquery.dataTables.min.css">        
+        <link rel="stylesheet" type="text/css" href="/css/jquery.dataTables.min.css">        
 
         <!-- Fonts -->
         <link href="font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
 
         <!--Javascript includes -->                                
-        <script src="/js/jquery-2.1.1.min.js"></script>
-        <script src="http://cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
-        <script src="/js/jquery.bootstrap-duallistbox.min.js"></script>
+        <script src="/js/ext/jquery-2.1.1.min.js"></script>
+        <script src="js/ext/jquery.dataTables.min.js"></script>
+        <script src="js/ext/bootstrap.min.js"></script>
+        <script src="/js/ext/jquery.bootstrap-duallistbox.min.js"></script>
+        <script src="js/ext/binary.js"></script>
+        
         <script src="/socket.io/socket.io.js"></script>
-        <script src="http://cdn.binaryjs.com/0/binary.js"></script>
+
         <script src="/js/StreamRequest.js"></script>
         <script src="/js/Stream.js"></script>
         <script src="/js/Model.js"></script>
         <script src="/js/View.js"></script>
-        <script src="/js/shareGroupCreationModal.js"></script>
-        <script src="/js/FileBrowser.js"></script>
-        <script src="/js/FileSelectionModal.js"></script>
+        <script src="/js/Modal.js"></script>
+        <script src="/js/ShareGroupCreationModal.js"></script>
+        <script src="/js/ShareGroupModal.js"></script>
         <script src="/js/Stream.js"></script>
         <script src="/js/StreamRequest.js"></script>
         <script src="/js/Controller.js"></script>
@@ -99,7 +101,7 @@
 
 
 
-        <!-- File Selection Modal -->
+        <!-- Share Group Selection Modal -->
         <div class="modal fade" id='shareGroupChoosingModal' data-backdrop="static">
           <div class="modal-dialog" >
             <div class="modal-content">
@@ -201,12 +203,12 @@
         </section>
     </div>
 
-           <div id="audioFileDiv" style="border:1px;display:none;">                
-                <audio controls id="audioFile" />                
-            </div>           
-            <div id="videoFileDiv" style="border:1px;display:none;">                
-                <video id="videoFile" controls />                      
-            </div>
+    <div id="audioFileDiv" style="border:1px;display:none;">                
+        <audio controls id="audioFile" />                
+    </div>           
+    <div id="videoFileDiv" style="border:1px;display:none;">                
+        <video id="videoFile" controls />                      
+    </div>
 
     
 

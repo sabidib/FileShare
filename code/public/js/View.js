@@ -1,4 +1,7 @@
-
+/**
+ * The view class handles all view elements of the main window.
+ * Any view related updates to individual modals are handled in their own classes.
+ */
 
 var View = function View(){
 
@@ -6,10 +9,7 @@ var View = function View(){
 
 v = View.prototype;
 
-v.showLoginForm = function(container){
-	html = ""
-}
-
+//Displays the main page
 v.showMainPage = function(username){
 	if(username) {
 		$('#loginContainer').fadeOut(500, function() {
@@ -29,32 +29,7 @@ v.showMainPage = function(username){
 	$('#refreshButton').click();
 }
 
-v.showFilesAboutToShare = function(files) {	
-	var list = $('#files-to-be-shared');
-	list.empty();
-	for (var i = files.length - 1; i >= 0; i--) {
-		list.append("<li>" + files[i]['name'] + "</li>");
-	};	
-}
-
-
-v.showFileBeingEdited = function(file) {	
-	var list = $('#files-to-be-shared');
-	$('#fileSelectionModalHeader').html("Editing file:");
-	list.empty();
-	list.append("<li>" + file.name + "</li>");
-}
-
-
-v.showMustAddUsernamesForCreateShareGroup = function(){
-	$('#userDualListBox').tooltip({'title':"You need to select at least 1 user!"});
-	$('#userDualListBox').tooltip('show')
-	setTimeout(function() {
-		$('#userDualListBox').tooltip('destroy')
-	}, 4000);
-}
-
-
+//Updates the share group table
 v.updateCurrentShareGroupTable = function(groups){
 	htmlString = "";
 	if (groups.length > 0){		
@@ -70,38 +45,8 @@ v.updateCurrentShareGroupTable = function(groups){
 	$('#shareGroupList').html(htmlString);
 	$('#sharegroups-table').DataTable();
 }
-v.showShareGroupsOnlineToChooseFrom = function(shareGroup, selectedShareGroups){
-	$('#shareGroupChoosingModal').modal('show');	
-	var list = $('#shareGroupDualListBox').bootstrapDualListbox();	
-	selected = {};	
-	if (selectedShareGroups) {
-		for (var i = selectedShareGroups.length - 1; i >= 0; i--) {
-			selected[selectedShareGroups[i]['id']] = true;
-		};
-	}
-	list.empty();
-	for (var i = shareGroup.length - 1; i >= 0; i--) {		
-		if (selected[shareGroup[i]['id']]) {
-			list.append("<option selected value='"+shareGroup[i]['id']+"'>"+shareGroup[i]['name']+"</option>");
-		}
-		else {
-			list.append("<option value='"+shareGroup[i]['id']+"'>"+shareGroup[i]['name']+"</option>");
-		}
-	};
-	list.bootstrapDualListbox('refresh');
-}
 
-v.showUsersOnlineForShareGroupCreationModal = function(users){
-	var list = $('#userDualListBox').bootstrapDualListbox();	
-	list.empty();
-	for (var i = users.length - 1; i >= 0; i--) {
-		list.append("<option value='"+users[i]['username']+"'>"+users[i]['username']+"</option>");
-	};
-	$('#userDualListBox').val(localStorage.getItem('username'));
-	list.bootstrapDualListbox('refresh');
-}
-
-
+//Indicates there was a general login failure
 v.showLoginFailure = function(data,name) {
 	$('#signInButton').tooltip({'title':"We couldn't log you in...sorry!..try again?"});
 	$('#signInButton').tooltip('show')
@@ -110,15 +55,7 @@ v.showLoginFailure = function(data,name) {
 	}, 4000);
 };
 
-v.showCreateShareGroupNameExists = function(){
-	$('#shareGroupNameToCreate').tooltip({'title':"A share group with this name already exists"});
-	$('#shareGroupNameToCreate').tooltip('show')
-	setTimeout(function() {
-		$('#shareGroupNameToCreate').tooltip('destroy')
-	}, 4000);
-}
-
-
+//Empty username error
 v.showEmptyUsernameLoginAttempt = function(){
 	$('#inputUsername').tooltip({'title':"You need to enter a username"});
 	$('#inputUsername').tooltip('show')
@@ -127,6 +64,7 @@ v.showEmptyUsernameLoginAttempt = function(){
 	}, 4000);
 }
 
+//The username is already connected error!
 v.showUsernameAlreadyBeingUsed = function(){
 	$('#inputUsername').tooltip({'title':"Someone is already using that name"});
 	$('#inputUsername').tooltip('show')
@@ -135,6 +73,8 @@ v.showUsernameAlreadyBeingUsed = function(){
 	}, 4000);
 }
 
+
+//Updates the browsing tab with files that are available for streaming
 v.showAvailableFilesToStream = function(data) {		
 	if (Object.keys(data).length > 0) {			
 		htmlString = "<table id='browsing-table'><thead><th>Filename</th><th>Uploaded By</th><th>Share Group</th><th>Download</th><th>Stream</th></thead><tbody>";	
@@ -176,6 +116,8 @@ v.showAvailableFilesToStream = function(data) {
 	$('#browsing-table').dataTable();
 }
 
+
+//This will update the Sharing tab to reflect all the currently sharing files.
 v.showFilesCurrentlyBeingShared = function(data) {	
 	htmlString = "";	
 	if (data.length > 0) {	
@@ -204,17 +146,4 @@ v.showFilesCurrentlyBeingShared = function(data) {
 	}
 	$('#shared-files').html(htmlString);	
 	$('#sharing-table').DataTable();	
-};
-
-
-
-v.showPickUsers = function(users) {	
-	htmlString = "<div id='user-list'>";
-	htmlString += "<h2 style='margin-bottom:0;'>Who?</h2>";
-	htmlString += "<ul class='alt'>"
-	$.each(users, function(i, u) {		
-		htmlString += "<li>" + u.name + "</li>";
-	});
-	htmlString += "</ul></div>";	
-	$('#main-body').html(htmlString);
 };

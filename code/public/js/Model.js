@@ -16,7 +16,6 @@ m.setCallback = function(serverResponseName,callback){
 }
 
 
-
 m.isUserConnected = function(username,callback){
 	this.setCallback('isUserConnectedResponse',callback);
 	this.socket.emit('isUserConnected',{'username' : username});
