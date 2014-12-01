@@ -1,4 +1,3 @@
-var NetworkFileSystemNode = require('./NetworkFileSystemNode.js');
 var ShareGroup = require('./ShareGroup.js');
 var Server = require('./Server.js');
 var Session = require('./Session.js');

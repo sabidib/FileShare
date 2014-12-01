@@ -169,8 +169,7 @@ io.on('connection', function(socket) {
                 }
             };
         } else {                         
-            // delete file if no share groups are provided
-            console.log("HERE");
+            // delete file if no share groups are provided            
             var f = client.files[data['id']];            
             f.deleteFile();  
             response['removed'] = true;
@@ -429,8 +428,7 @@ var binaryServer = BinaryServer({
 // Wait for new user connections
 binaryServer.on('connection', function(c) {
     // Incoming stream from browser
-    c.on('stream', function(stream, meta) {
-        // Supa hacks
+    c.on('stream', function(stream, meta) {        
         if (meta['username_get_socket'] != undefined) {
             if (server.userExists(meta['username_get_socket'])) {
                 server.clients[meta['username_get_socket']].binarySocket = c;

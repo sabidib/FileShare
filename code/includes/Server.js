@@ -1,4 +1,3 @@
-var NetworkFileSystemNode = require('./NetworkFileSystemNode.js');
 var Client = require('./Client.js');
 
 /**
