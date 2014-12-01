@@ -1,0 +1,26 @@
+class Client {
+	* -- 1 Server;	
+	* -- * ShareGroup;		
+	string username;
+	data loginTime;		
+}
+
+class File {	
+	* -> 1 Client uploadedBy;		
+    int id;
+	fileType;	
+    name;
+    location;
+}
+
+
+class Server{	
+  startTime;
+}
+
+
+class ShareGroup {
+	int numberOfClients;
+	int numberOfFiles;
+	0..1 -- * File;	
+}
