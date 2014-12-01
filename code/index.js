@@ -36,7 +36,7 @@ app.get('/', function(req, res) {
     cookies = new Cookies(req, res, key)
 
     session = new Session();
-    cookies.set('id', session.getSessionID(), {
+    cookies.set('id', session.sessionID, {
         maxAge: 60 * 24 * 30
     })
 
@@ -47,7 +47,7 @@ app.get('/test.html', function(req, res) {
     cookies = new Cookies(req, res, key)
 
     session = new Session();
-    cookies.set('id', session.getSessionID(), {
+    cookies.set('id', session.sessionID, {
         maxAge: 60 * 24 * 30
     })
 

@@ -1,23 +1,16 @@
-//var NetworkFileSystemNode = require('./NetworkFileSystemNode.js');
 var Utilities = require('./Utilities.js');
 var ShareGroup = require('./ShareGroup.js');
 /**
  * Creates a new File.
- * @class
- * @param {string} name The name of the file.
- * @param {string} path The path of the file.
- * @param {string} location The path of the folder.
- * @param {string} fileType The file type of this file.
- * @param {Client} Client The client that has this file.
  */ 
-var File = function File(name, fileType, client, shareGroup) {
-	//NetworkFileSystemNode.call(this, name);	
+var File = function File(name, fileType, client, shareGroup) {	
 	this.utils = new Utilities();
 	this.fileType = fileType;
 	this.client = client;
 	this.id = require('crypto').createHash('md5').update(name).digest("hex");
 	this.name = name;
 
+	// Add this file to the share group and client
 	client.addFile(this);
 	if (shareGroup) {
 		shareGroup.addFile(this);
@@ -25,9 +18,11 @@ var File = function File(name, fileType, client, shareGroup) {
 	}	
 }
 
-//File.prototype = Object.create(NetworkFileSystemNode.prototype); 		// inherit from NetworkFileSystemNode
-File.prototype.constructor = File;					// change constructor from NetworkFileSystemNode's constructor to File's constructor
+// Set Constructor
+File.prototype.constructor = File;
 
+
+// Delete a file from the system
 File.prototype.deleteFile = function(){
 	this.shareGroup.removeFile(this);
 	this.client.removeFile(this);

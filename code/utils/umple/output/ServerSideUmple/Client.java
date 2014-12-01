@@ -19,12 +19,13 @@ public class Client
   //Client Associations
   private Server server;
   private List<ShareGroup> shareGroups;
+  private Session session;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Client(string aUsername, data aLoginTime, Server aServer)
+  public Client(string aUsername, data aLoginTime, Server aServer, Session aSession)
   {
     username = aUsername;
     loginTime = aLoginTime;
@@ -34,6 +35,24 @@ public class Client
       throw new RuntimeException("Unable to create client due to server");
     }
     shareGroups = new ArrayList<ShareGroup>();
+    if (aSession == null || aSession.getClient() != null)
+    {
+      throw new RuntimeException("Unable to create Client due to aSession");
+    }
+    session = aSession;
+  }
+
+  public Client(string aUsername, data aLoginTime, Server aServer, String aSessionIDForSession)
+  {
+    username = aUsername;
+    loginTime = aLoginTime;
+    boolean didAddServer = setServer(aServer);
+    if (!didAddServer)
+    {
+      throw new RuntimeException("Unable to create client due to server");
+    }
+    shareGroups = new ArrayList<ShareGroup>();
+    session = new Session(aSessionIDForSession, this);
   }
 
   //------------------------
@@ -99,6 +118,11 @@ public class Client
   {
     int index = shareGroups.indexOf(aShareGroup);
     return index;
+  }
+
+  public Session getSession()
+  {
+    return session;
   }
 
   public boolean setServer(Server aServer)
@@ -213,6 +237,12 @@ public class Client
     {
       aShareGroup.removeClient(this);
     }
+    Session existingSession = session;
+    session = null;
+    if (existingSession != null)
+    {
+      existingSession.delete();
+    }
   }
 
 
@@ -222,7 +252,8 @@ public class Client
     return super.toString() + "["+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "username" + "=" + (getUsername() != null ? !getUsername().equals(this)  ? getUsername().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "loginTime" + "=" + (getLoginTime() != null ? !getLoginTime().equals(this)  ? getLoginTime().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
-            "  " + "server = "+(getServer()!=null?Integer.toHexString(System.identityHashCode(getServer())):"null")
+            "  " + "server = "+(getServer()!=null?Integer.toHexString(System.identityHashCode(getServer())):"null") + System.getProperties().getProperty("line.separator") +
+            "  " + "session = "+(getSession()!=null?Integer.toHexString(System.identityHashCode(getSession())):"null")
      + outputString;
   }
 }

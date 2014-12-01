@@ -1,6 +1,8 @@
 var Utilities = require('./Utilities.js');
 
-
+/**
+ * Session class that stores Client's information.
+ */ 
 var Session = function Session(cookieParser,cookieSession){
 	this.utils = new Utilities();
 	this.sessionID = this.utils.generateRandomKey();
@@ -9,13 +11,10 @@ var Session = function Session(cookieParser,cookieSession){
 	this.table = {};
 }
 
-Session.prototype.constructor = Session;
-
-Session.prototype.getSessionID = function(){
-	return this.sessionID;
-}
+Session.prototype.constructor = Session;				// set constructor
 
 
+// Add additional properties to the session
 Session.prototype.set = function(key,value){
 	this.table['key'] = value;
 }
