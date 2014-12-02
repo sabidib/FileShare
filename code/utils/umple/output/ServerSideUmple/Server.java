@@ -80,9 +80,9 @@ public class Server
     return 0;
   }
 
-  public Client addClient(string aUsername, data aLoginTime)
+  public Client addClient(string aUsername, data aLoginTime, Session aSession)
   {
-    return new Client(aUsername, aLoginTime, this);
+    return new Client(aUsername, aLoginTime, this, aSession);
   }
 
   public boolean addClient(Client aClient)

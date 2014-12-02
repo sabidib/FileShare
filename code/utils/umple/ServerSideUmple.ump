@@ -24,3 +24,8 @@ class ShareGroup {
 	int numberOfFiles;
 	0..1 -- * File;	
 }
+
+class Session {
+	1 -- 1 Client;
+	sessionID;
+}

@@ -1,3 +1,5 @@
+// This class is used for additional methods that can't be placed in any other class.
+
 var Utilities = function Utilities(){
 
 }

@@ -1,19 +1,18 @@
 /**
  * Creates a new ShareGroup.
- * @class
  */
 
 var ShareGroup = function ShareGroup(name) {
 	this.files = {};
 	this.clients = {};
-	this.name = name;	
-	this.numberOfClients = 0;
-	this.numberOfFiles = 0;
+	this.name = name;		
 	this.shareGroupID = this.getNewShareGroupIDFromServer();
 };
 
+// Each share group has a unique ID
 ShareGroup.GlobalShareGroupIDCounter = 0;
 
+// Generate unique ID
 ShareGroup.prototype.getNewShareGroupIDFromServer = function(){
 	console.log("Creating a new ShareGroup, printing from getNewShareGroupIDFromServer. This function must get a new unique shareGroupID from the server.")
 	var tmp = ShareGroup.GlobalShareGroupIDCounter;
@@ -21,11 +20,14 @@ ShareGroup.prototype.getNewShareGroupIDFromServer = function(){
 	return tmp;
 }
 
+// Remove file from share group
 ShareGroup.prototype.removeFile = function(file){
 	this.files[file.id] = null;
 	delete this.files[file.id];
 }
 
+
+// Add file to this share group if it isn't already in it
 ShareGroup.prototype.addFile = function(file){
 	if(file.id in this.files) {
 		return false;		
@@ -35,6 +37,7 @@ ShareGroup.prototype.addFile = function(file){
 	}
 }
 
+// Add a client to this share group if it isn't already in it
 ShareGroup.prototype.addClient = function (client) {
      if (client.username in this.clients) {
         return false;
@@ -46,6 +49,7 @@ ShareGroup.prototype.addClient = function (client) {
     }	
 };
 
+// Remove client from this group
 ShareGroup.prototype.removeClient = function(client){
     if (client.username in this.clients) {    	
     	for(var j in this.files){
@@ -58,13 +62,6 @@ ShareGroup.prototype.removeClient = function(client){
     	return true;
     }
     return false;    	    
-}
-
-ShareGroup.prototype.getNumberOfClients = function(){
-	return this.clients.length;
-}
-ShareGroup.prototype.getNumberOfFiles = function(){
-	return this.files.length;
 }
 
  module.exports = ShareGroup;				// this line is so that this class can be accessed by other files
