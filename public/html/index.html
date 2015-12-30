@@ -1,0 +1,251 @@
+<html>
+    <head>                
+        <link rel="stylesheet" type="text/css" href="/css/style.css">
+
+        <!--The following stylesheets are taken from: http://startbootstrap.com/template-overviews/stylish-portfolio/ -->
+        <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="/css/stylish-portfolio.css">
+        <link rel="stylesheet" type="text/css" href="/css/bootstrap-duallistbox.min.css">        
+        <link rel="stylesheet" type="text/css" href="/css/jquery.dataTables.min.css">        
+
+        <!-- Fonts -->
+        <link href="font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+
+        <!--Javascript includes -->                                
+        <script src="/js/ext/jquery-2.1.1.min.js"></script>
+        <script src="js/ext/jquery.dataTables.min.js"></script>
+        <script src="js/ext/bootstrap.min.js"></script>
+        <script src="/js/ext/jquery.bootstrap-duallistbox.min.js"></script>
+        <script src="js/ext/binary.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+
+
+        <script src="/js/StreamRequest.js"></script>
+        <script src="/js/Stream.js"></script>
+        <script src="/js/Model.js"></script>
+        <script src="/js/View.js"></script>
+        <script src="/js/Modal.js"></script>
+        <script src="/js/ShareGroupCreationModal.js"></script>
+        <script src="/js/ShareGroupModal.js"></script>
+        <script src="/js/Stream.js"></script>
+        <script src="/js/StreamRequest.js"></script>
+        <script src="/js/Controller.js"></script>
+        <script src="/js/main.js"></script>
+    </head>
+
+    <body>      
+        <!-- Login -->
+        <div id='loginContainer'>
+         <header id="top" class="header">
+            <div class="text-vertical-center">
+                <h1>Start Sharing</h1>
+                 <!-- Login  view goes here-->               
+                 <div id="login-box" class='container'>
+                    <form class="form-signin" role="form">
+                        <h2 class="form-signin-heading">Please sign in</h2>
+                        <label for="inputUsername" data-trigger="manual" data-toggle='tooltip' class="sr-only">Username</label>
+                        <input type="username" id="inputUsername" class="form-control" placeholder="username" required autofocus>
+                        <br>
+                        <button class="btn btn-lg btn-primary btn-block" data-trigger="manual" data-toggle='tooltip'id='signInButton'>Sign in</button>
+                    </form>
+                <br>
+            </div>
+        </header>
+        </div>
+
+        <div id='mainContainer' hidden>
+            <!-- Navigation -->
+        <a id="menu-toggle" href="#" class="btn btn-dark btn-lg toggle"><i class="fa fa-bars"></i></a>
+        <nav id="sidebar-wrapper">
+            <ul class="sidebar-nav">
+                <a id="menu-close" href="#" class="btn btn-light btn-lg pull-right toggle"><i class="fa fa-times"></i></a>
+                <li class="sidebar-brand">
+                    <a href="#mainContainer">Start Sharing</a>
+                </li>
+                <li>
+                    <a href="#mainContainer">Home</a>
+                </li>
+                <li>
+                    <a href="#sharedFilesSection">Shared Files</a>
+                </li>
+                <li>
+                    <a href="#streamFilesSection">Browse</a>
+                </li>
+                <li>
+                    <a href="#shareGroupsSection">Share Groups</a>
+                </li>                
+                <li>
+                    <a id="refreshButton" class="btn btn-dark btn-lg">Refresh</a>
+                </li>
+                <li>
+                    <a id="share-button-nav" class="btn btn-dark btn-lg">Share</a>
+                </li>
+            </ul>
+        </nav>
+             <header id="top" class="header">
+                <div class="text-vertical-center">
+                    <h1>Start Sharing <span class='usernameBlank'></span></h1>
+                    <br>
+                    <a id="share-button" href="#sharedFilesSection" class="btn btn-dark btn-lg">Share</a>                
+                    <a href="#streamFilesSection" class="btn btn-dark btn-lg">Browse</a>
+                    <a id="refreshButton" class="btn btn-dark btn-lg">Refresh</a>
+                    <a id="logout-button" class="btn btn-dark btn-lg">Logout</a>
+                    <br>
+                    <br>
+                    <a id="shareGroupCreation" class="btn btn-dark btn-lg">Create a share group</a>
+                    <input id="add-files-dialog" type="file" name="files[]" multiple>
+                </div>
+            </header>
+        </div>
+
+
+
+        <!-- Share Group Selection Modal -->
+        <div class="modal fade" id='shareGroupChoosingModal' data-backdrop="static">
+          <div class="modal-dialog" >
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="fileSelectionModalHeader">You are about to share these files:</h4>
+                 <div class="modal-body file-list">                    
+                    <ul id='files-to-be-shared'></ul>                
+                </div>
+                <h4 class="modal-title">Who would you like to share with?</h4>
+              </div>
+              <div class="modal-body">
+                <select id='shareGroupDualListBox' multiple="multiple" size="10">
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" id='submitShareWithGlobalGroup'>Share with everyone!</button>
+                <button type="button" class="btn btn-primary" id='submitShareWith'>Share with</button>
+              </div>
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+
+
+        <!-- Share Group Creation Modal -->
+        <div class="modal fade" id='shareGroupCreationModal'  data-backdrop="static">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Who would you like to have in your share group?</h4>
+              </div>
+                <input type="text" class="form-control" id="shareGroupNameToCreate" placeholder="Enter a share group name to create it!">   
+              <div class="modal-body">
+                <select id='userDualListBox' multiple="multiple" size="10">
+                </select>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" id='createShareGroup'> Create share group</button>
+                <button type="button" class="btn btn-primary" id='closeCreateShareGroup'> Cancel</button>
+              </div>
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
+
+
+
+
+    <div id="contentSections" style="display:none;">
+
+
+        <!-- Show shared files -->
+        <section id="sharedFilesSection">
+                <div class="container">
+                        <div class="row">
+                            <div class="col-lg-12 text-center">
+                                <h2>Share</h2>
+
+                    <a id="refreshButton" class="btn btn-dark btn-lg">Refresh</a>
+                                <div id="shared-files">
+                                    No files being shared at this moment.
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.row -->
+                    </div>                
+        </section>
+        <section id="streamFilesSection">
+                <div class="container">
+                        <div class="row">
+                            <div class="col-lg-12 text-center">
+                                <h2>Browse</h2>            
+
+                    <a id="refreshButton" class="btn btn-dark btn-lg">Refresh</a>                    
+                                <div id="streamable-files">        
+                                No files can be streamed or downloaded at this moment.                            
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.row -->
+                    </div>                   
+        </section>    
+        <section id="shareGroupsSection">            
+                 <div class="container">
+                        <div class="row">
+                            <div class="col-lg-12 text-center" id='shareGroupCreateDiv'>
+                                <h2>Share Groups</h2>            
+                                
+                    <a id="refreshButton" class="btn btn-dark btn-lg">Refresh</a>                    
+                                <div id="shareGroupList">              
+                                </div>                            
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            <!-- /.container -->
+        </section>
+    </div>
+
+    <div id="audioFileDiv" style="border:1px;display:none;">                
+        <audio controls id="audioFile" />                
+    </div>           
+    <div id="videoFileDiv" style="border:1px;display:none;">                
+        <video id="videoFile" controls />                      
+    </div>
+
+    
+
+    <!-- Custom Theme JavaScript -->
+    <script>
+    // Closes the sidebar menu
+    $("#menu-close").click(function(e) {
+        e.preventDefault();
+        $("#sidebar-wrapper").toggleClass("active");
+    });
+
+    // Opens the sidebar menu
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#sidebar-wrapper").toggleClass("active");
+    });
+
+    // Scrolls to the selected menu item on the page
+    $(function() {
+        $('a[href*=#]:not([href=#])').click(function() {
+            if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') || location.hostname == this.hostname) {
+
+                var target = $(this.hash);
+                target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
+                if (target.length) {
+                    $('html,body').animate({
+                        scrollTop: target.offset().top
+                    }, 500);
+                    return false;
+                }
+            }
+        });
+    });
+    </script>
+    </body>
+</html>
+
+
+
+
